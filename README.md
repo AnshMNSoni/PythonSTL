@@ -7,7 +7,7 @@
 
 A production-ready Python package that replicates C++ STL-style data structures using the **Facade Design Pattern**. PythonSTL provides clean, familiar interfaces for developers coming from C++ while maintaining Pythonic best practices.
 
-## 🎯 Features
+## Features
 
 - **C++ STL Compliance**: Exact method names and semantics matching C++ STL
 - **Facade Design Pattern**: Clean separation between interface and implementation
@@ -33,7 +33,7 @@ cd STL
 pip install -e .
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ```python
 from pythonstl import stack, queue, vector, stl_set, stl_map, priority_queue
@@ -87,7 +87,7 @@ pq_max.push(20)
 print(pq_max.top())  # 30
 ```
 
-## 📚 Data Structures
+## Data Structures
 
 ### Stack
 
@@ -224,7 +224,7 @@ Container adapter providing priority-based access.
 - `repr(pq)` - String representation
 - `pq1 == pq2` - Equality comparison
 
-## ⚡ Time Complexity Reference
+## Time Complexity Reference
 
 | Container | Operation | Complexity |
 |-----------|-----------|------------|
@@ -276,7 +276,7 @@ This architecture ensures:
 - **Maintainability**: Easy to modify internals without breaking API
 - **Testability**: Each layer can be tested independently
 
-## 🔒 Thread Safety
+## Thread Safety
 
 **Important:** PythonSTL containers are **NOT thread-safe** by default. If you need to use them in a multi-threaded environment, you must provide your own synchronization (e.g., using `threading.Lock`).
 
@@ -292,7 +292,7 @@ def thread_safe_push(value):
         s.push(value)
 ```
 
-## 🎨 Design Decisions
+## Design Decisions
 
 ### Why Facade Pattern?
 
@@ -315,7 +315,7 @@ Full Python integration while maintaining STL compatibility:
 - Copy protocol support
 - Maintains backward compatibility
 
-## 📊 Benchmarks
+## Benchmarks
 
 PythonSTL provides benchmarks comparing performance against Python built-ins:
 
@@ -335,7 +335,7 @@ The facade pattern adds minimal overhead while providing:
 
 See `benchmarks/README.md` for detailed analysis.
 
-## 🧪 Testing
+## Testing
 
 Run the test suite:
 
@@ -386,20 +386,9 @@ Contributions are welcome! Please:
 4. Ensure all tests pass
 5. Submit a pull request
 
-## 📮 Contact
+## Contact
 
 - GitHub: [@AnshMNSoni](https://github.com/AnshMNSoni)
 - Issues: [GitHub Issues](https://github.com/AnshMNSoni/STL/issues)
 
-## 🗺️ Roadmap
-
-Future enhancements:
-- Additional STL containers (deque, list, multiset, multimap)
-- Algorithm library (sort, search, transform)
-- Custom allocators
-- Thread-safe variants
-- Performance optimizations
-
----
-
-**PythonSTL v0.1.0** - Bringing C++ STL elegance to Python 🐍
+**PythonSTL v0.1.0** - Bringing C++ STL elegance to Python
