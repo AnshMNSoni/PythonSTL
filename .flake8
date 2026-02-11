@@ -10,9 +10,12 @@ exclude =
     *.egg-info,
     .pytest_cache,
     .mypy_cache
+# E203: whitespace before ':'
+# W503: line break before binary operator
+# E501: line too long (handled by max-line-length)
 ignore = 
-    E203,  # whitespace before ':'
-    W503,  # line break before binary operator
-    E501   # line too long (handled by max-line-length)
+    E203,
+    W503,
+    E501
 per-file-ignores =
     __init__.py:F401,F403
