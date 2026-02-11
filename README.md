@@ -399,7 +399,3 @@ Future enhancements:
 - Custom allocators
 - Thread-safe variants
 - Performance optimizations
-
----
-
-**PythonSTL v0.1.0** - Bringing C++ STL elegance to Python
