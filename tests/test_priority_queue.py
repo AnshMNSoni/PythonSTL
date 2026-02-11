@@ -46,7 +46,7 @@ class TestPriorityQueue:
     
     def test_min_heap_order(self):
         """Test that min-heap returns smallest element."""
-        pq = priority_queue(max_heap=False)
+        pq = priority_queue(comparator="min")
         pq.push(30)
         pq.push(10)
         pq.push(50)
@@ -55,7 +55,7 @@ class TestPriorityQueue:
     
     def test_min_heap_pop_order(self):
         """Test that elements are popped in ascending order from min-heap."""
-        pq = priority_queue(max_heap=False)
+        pq = priority_queue(comparator="min")
         elements = [30, 10, 50, 20, 40]
         for elem in elements:
             pq.push(elem)
