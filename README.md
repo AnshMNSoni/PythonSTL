@@ -4,7 +4,7 @@
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://img.shields.io/pypi/v/pythonstl.svg)](https://pypi.org/project/pythonstl/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.1-brightgreen.svg)](https://github.com/AnshMNSoni/PythonSTL)
+<br>
 
 <div align="center">
     <img width="500" height="500" alt="pythonstl_logo" src="https://github.com/user-attachments/assets/7ef83b5f-d005-48e0-a186-05dd7e2221c2" />
@@ -401,4 +401,4 @@ Contributions are welcome! Please:
 - GitHub: [@AnshMNSoni](https://github.com/AnshMNSoni)
 - Issues: [GitHub Issues](https://github.com/AnshMNSoni/PythonSTL/issues)
 
-**PythonSTL v0.1.0** - Bringing C++ STL elegance to Python
+**PythonSTL v0.1.1** - Bringing C++ STL elegance to Python
