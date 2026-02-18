@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pythonstl"
-version = "0.1.1"
+version = "0.1.2"
 description = "C++ STL-style containers implemented in Python using the Facade Design Pattern"
 readme = "README.md"
 authors = [
