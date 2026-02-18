@@ -3,7 +3,7 @@
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://img.shields.io/pypi/v/pythonstl.svg)](https://pypi.org/project/pythonstl/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-brightgreen.svg)](https://github.com/AnshMNSoni/STL)
+[![Version](https://img.shields.io/badge/version-0.1.1-brightgreen.svg)](https://github.com/AnshMNSoni/STL)
 
 A production-ready Python package that replicates C++ STL-style data structures using the **Facade Design Pattern**. PythonSTL provides clean, familiar interfaces for developers coming from C++ while maintaining Pythonic best practices.
 
@@ -391,4 +391,4 @@ Contributions are welcome! Please:
 - GitHub: [@AnshMNSoni](https://github.com/AnshMNSoni)
 - Issues: [GitHub Issues](https://github.com/AnshMNSoni/STL/issues)
 
-**PythonSTL v0.1.0** - Bringing C++ STL elegance to Python
+**PythonSTL v0.1.1** - Bringing C++ STL elegance to Python
