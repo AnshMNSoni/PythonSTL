@@ -1,11 +1,16 @@
 # PythonSTL - Python Standard Template Library
 
+[![Downloads](https://img.shields.io/pypi/dw/pythonstl.svg)](https://pypi.org/project/pythonstl/)
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://img.shields.io/pypi/v/pythonstl.svg)](https://pypi.org/project/pythonstl/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.1-brightgreen.svg)](https://github.com/AnshMNSoni/STL)
+[![Version](https://img.shields.io/badge/version-0.1.1-brightgreen.svg)](https://github.com/AnshMNSoni/PythonSTL)
 
-A production-ready Python package that replicates C++ STL-style data structures using the **Facade Design Pattern**. PythonSTL provides clean, familiar interfaces for developers coming from C++ while maintaining Pythonic best practices.
+<div align="center">
+    <img width="500" height="500" alt="pythonstl_logo" src="https://github.com/user-attachments/assets/7ef83b5f-d005-48e0-a186-05dd7e2221c2" />
+</div><br>
+
+A Python package that replicates C++ STL-style data structures using the **Facade Design Pattern**. PythonSTL provides clean, familiar interfaces for developers coming from C++ while maintaining Pythonic best practices.
 
 ## Features
 
@@ -28,8 +33,8 @@ pip install pythonstl
 Or install from source:
 
 ```bash
-git clone https://github.com/AnshMNSoni/STL.git
-cd STL
+git clone https://github.com/AnshMNSoni/PythonSTL.git
+cd PythonSTL
 pip install -e .
 ```
 
@@ -355,8 +360,8 @@ pytest tests/ --cov=pythonstl --cov-report=html
 ### Setup
 
 ```bash
-git clone https://github.com/AnshMNSoni/STL.git
-cd STL
+git clone https://github.com/AnshMNSoni/PythonSTL.git
+cd PythonSTL
 pip install -e ".[dev]"
 ```
 
@@ -373,6 +378,10 @@ flake8 pythonstl/
 pytest && mypy pythonstl/ && flake8 pythonstl/
 ```
 
+## Note
+➡️ The goal is NOT to replace Python built-ins.<br>
+➡️ The goal is to provide: 1) Conceptual clarity 2) STL familiarity for C++ developers 3) A structured learning bridge for DSA <br>
+
 ## 📝 License
 
 MIT License - see LICENSE file for details.
@@ -386,9 +395,10 @@ Contributions are welcome! Please:
 4. Ensure all tests pass
 5. Submit a pull request
 
+## Thankyou
 ## Contact
 
 - GitHub: [@AnshMNSoni](https://github.com/AnshMNSoni)
-- Issues: [GitHub Issues](https://github.com/AnshMNSoni/STL/issues)
+- Issues: [GitHub Issues](https://github.com/AnshMNSoni/PythonSTL/issues)
 
 **PythonSTL v0.1.1** - Bringing C++ STL elegance to Python
