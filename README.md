@@ -4,7 +4,6 @@
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://img.shields.io/pypi/v/pythonstl.svg)](https://pypi.org/project/pythonstl/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.1-brightgreen.svg)](https://github.com/AnshMNSoni/PythonSTL)
 
 <div align="center">
     <img width="500" height="500" alt="pythonstl_logo" src="https://github.com/user-attachments/assets/7ef83b5f-d005-48e0-a186-05dd7e2221c2" />
