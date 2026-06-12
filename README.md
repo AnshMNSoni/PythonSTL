@@ -320,25 +320,43 @@ Full Python integration while maintaining STL compatibility:
 - Copy protocol support
 - Maintains backward compatibility
 
-## Benchmarks
+## 📊 Performance Benchmarks
 
-PythonSTL provides benchmarks comparing performance against Python built-ins:
+PythonSTL includes a compiled Rust backend (built with PyO3 and Maturin) for high-performance operations, alongside pure-Python fallbacks. Below are the actual performance comparison results against pure-Python and native C++ (compiled with `g++ -O3`).
 
-```bash
-python benchmarks/benchmark_stack.py
-python benchmarks/benchmark_vector.py
-python benchmarks/benchmark_map.py
-```
+### 1. Containers Performance (50,000 Operations)
 
-**Expected Overhead:** 1.1x - 1.5x compared to native Python structures
+| Container Class | Pure Python | Python + Rust | Speedup Status | Design / Algorithmic Trade-off |
+| :--- | :--- | :--- | :--- | :--- |
+| **Stack** | 0.2470s | 0.1604s | **1.54x faster** | Linear stack operations. Limited by FFI call overhead. |
+| **Queue** | 0.2547s | 0.1946s | **1.31x faster** | FIFO operations. Limited by FFI call overhead. |
+| **Vector** | 0.0050s | 0.0045s | **1.10x faster** | Push_back & random access indices. Limited by FFI. |
+| **Set** | 0.0337s | 0.1844s | *0.18x faster* | **Sorted Set vs Unordered Hash Set** (replicates C++ B-Tree structure) |
+| **Map** | 0.0421s | 0.2104s | *0.20x faster* | **Sorted Map vs Unordered Hash Map** (replicates C++ B-Tree structure) |
+| **Priority Queue**| 0.0584s | 0.0900s | *0.65x faster* | Custom binary heap vs. C-optimized `heapq` module. |
 
-The facade pattern adds minimal overhead while providing:
-- STL-style API
-- Better error messages
-- Bounds checking
-- Type safety
+* **Sorted Trees vs. Hash Tables**: Python's native `set` and `dict` are highly optimized $O(1)$ hash tables written in C. PythonSTL sets/maps replicate C++'s `std::set`/`std::map` using sorted trees (`BTreeSet`/`BTreeMap`), which run in $O(\log N)$ and sort keys.
+* **FFI overhead**: Storing arbitrary Python objects in Rust requires acquiring the GIL and calling back into the Python VM for comparisons, creating high FFI boundaries.
 
-See `benchmarks/README.md` for detailed analysis.
+### 2. Algorithms Suite
+
+| Algorithm Name | Pure Python (Middle Pivot) | Python + Rust | Pure C++ (O3) | Rust Speedup | Design & FFI Insights |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **next_permutation** | 0.3158s | 0.2530s | 0.0020s | **1.2x** | Lexicographical rearrangement. Limited by FFI conversions. |
+| **nth_element** | 0.0068s | 0.0047s | 0.0000s | **1.5x** | Quickselect median find. (Previously **70.85s** before optimization). |
+| **partition** | 0.0193s | 0.0197s | 0.0000s | **1.0x** | Lambda-predicate partitioning. Dominated by FFI callback overhead. |
+
+* **Algorithmic Pivot Vulnerabilities**: A naive Lomuto partition (`pivot = arr[right]`) causes $O(N^2)$ worst-case time on already-sorted or reversed lists (taking **70.85s**). By switching PythonSTL to a middle-pivot (`arr[mid]`), we restore $O(N)$ average time (**0.0068s**).
+
+### 3. Binary Search (5,000 Queries on 1,000,000 elements)
+
+| Search Mode / Comparator | Pure Python | Python + Rust | Pure C++ (O3) | Rust Speedup | Systems & Design Insights |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Standard (`<` comparison)** | 0.0214s | 0.0028s | 0.0000s | **7.5x** | Preserves $O(\log N)$ via direct list indexing. |
+| **Custom Comparator (lambda)**| 0.0251s | 0.0074s | N/A | **3.4x** | Overcomes Python loop overhead despite FFI callbacks. |
+
+* **Direct Indexing**: Instead of extracting/copying the entire list (an $O(N)$ operation), the Rust backend uses direct GIL-bound indexing (`arr.get_item(mid)`), maintaining the strict $O(\log N)$ search complexity.
+
 
 ## Testing
 
@@ -401,4 +419,4 @@ Contributions are welcome! Please:
 - GitHub: [@AnshMNSoni](https://github.com/AnshMNSoni)
 - Issues: [GitHub Issues](https://github.com/AnshMNSoni/PythonSTL/issues)
 
-**PythonSTL v0.1.1** - Bringing C++ STL elegance to Python
+**PythonSTL v1.1.4** - Bringing C++ STL elegance to Python

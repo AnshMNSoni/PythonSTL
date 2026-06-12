@@ -6,8 +6,15 @@ This module provides the public-facing vector class that users interact with.
 
 from typing import TypeVar, Iterator as TypingIterator
 from copy import deepcopy
+from pythonstl.core.exceptions import EmptyContainerError, OutOfRangeError
 from pythonstl.implementations.linear._vector_impl import _VectorImpl
 from pythonstl.core.iterator import VectorIterator, VectorReverseIterator
+
+try:
+    from pythonstl._rust import RustVector
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
 
 T = TypeVar('T')
 
@@ -31,14 +38,19 @@ class vector:
         True
     """
 
-    def __init__(self) -> None:
+    def __init__(self, use_rust: bool = True) -> None:
         """
         Initialize an empty vector.
 
         Time Complexity:
             O(1)
         """
-        self._impl = _VectorImpl()
+        if use_rust and RUST_AVAILABLE:
+            self._impl = RustVector()
+            self._is_rust = True
+        else:
+            self._impl = _VectorImpl()
+            self._is_rust = False
 
     def push_back(self, value: T) -> None:
         """
@@ -62,6 +74,8 @@ class vector:
         Time Complexity:
             O(1)
         """
+        if self.empty():
+            raise EmptyContainerError("vector")
         self._impl.pop_back()
 
     def at(self, index: int) -> T:
@@ -80,6 +94,8 @@ class vector:
         Time Complexity:
             O(1)
         """
+        if index < 0 or index >= self.size():
+            raise OutOfRangeError(index, self.size())
         return self._impl.at(index)
 
     def insert(self, position: int, value: T) -> None:
@@ -96,6 +112,8 @@ class vector:
         Time Complexity:
             O(n) where n is the number of elements after position
         """
+        if position < 0 or position > self.size():
+            raise OutOfRangeError(position, self.size())
         self._impl.insert(position, value)
 
     def erase(self, position: int) -> None:
@@ -111,6 +129,8 @@ class vector:
         Time Complexity:
             O(n) where n is the number of elements after position
         """
+        if position < 0 or position >= self.size():
+            raise OutOfRangeError(position, self.size())
         self._impl.erase(position)
 
     def clear(self) -> None:
@@ -158,7 +178,8 @@ class vector:
         Time Complexity:
             O(1)
         """
-        return self._impl.begin()
+        data = self._impl.get_data() if self._is_rust else self._impl._data
+        return VectorIterator(data, 0)
 
     def end(self) -> VectorIterator:
         """
@@ -170,7 +191,8 @@ class vector:
         Time Complexity:
             O(1)
         """
-        return self._impl.end()
+        data = self._impl.get_data() if self._is_rust else self._impl._data
+        return VectorIterator(data, len(data))
 
     def rbegin(self) -> VectorReverseIterator:
         """
@@ -182,7 +204,8 @@ class vector:
         Time Complexity:
             O(1)
         """
-        return self._impl.rbegin()
+        data = self._impl.get_data() if self._is_rust else self._impl._data
+        return VectorReverseIterator(data)
 
     def rend(self) -> VectorReverseIterator:
         """
@@ -194,7 +217,8 @@ class vector:
         Time Complexity:
             O(1)
         """
-        return self._impl.rend()
+        data = self._impl.get_data() if self._is_rust else self._impl._data
+        return VectorReverseIterator(data, -1)
 
     def size(self) -> int:
         """
@@ -242,9 +266,12 @@ class vector:
         Time Complexity:
             O(n) where n is the number of elements
         """
-        new_vector = vector()
-        for i in range(self.size()):
-            new_vector.push_back(self.at(i))
+        new_vector = vector(use_rust=self._is_rust)
+        if self._is_rust:
+            new_vector._impl.set_data(self._impl.get_data())
+        else:
+            new_vector._impl._data = self._impl._data.copy()
+            new_vector._impl._capacity = self._impl._capacity
         return new_vector
 
     # Python magic methods
@@ -280,10 +307,9 @@ class vector:
         Time Complexity:
             O(n) where n is the number of elements
         """
-        for i in range(self.size()):
-            if self.at(i) == value:
-                return True
-        return False
+        if self._is_rust:
+            return value in self._impl.get_data()
+        return value in self._impl._data
 
     def __repr__(self) -> str:
         """
@@ -292,7 +318,10 @@ class vector:
         Returns:
             String representation showing all elements.
         """
-        elements = [str(self.at(i)) for i in range(self.size())]
+        if self._is_rust:
+            elements = [str(elem) for elem in self._impl.get_data()]
+        else:
+            elements = [str(elem) for elem in self._impl._data]
         return f"vector([{', '.join(elements)}])"
 
     def __eq__(self, other: object) -> bool:
@@ -307,12 +336,10 @@ class vector:
         """
         if not isinstance(other, vector):
             return False
-        if self.size() != other.size():
-            return False
-        for i in range(self.size()):
-            if self.at(i) != other.at(i):
-                return False
-        return True
+
+        self_data = self._impl.get_data() if self._is_rust else self._impl._data
+        other_data = other._impl.get_data() if other._is_rust else other._impl._data
+        return self_data == other_data
 
     def __lt__(self, other: 'vector') -> bool:
         """
@@ -324,13 +351,16 @@ class vector:
         Returns:
             True if this vector is lexicographically less than other.
         """
-        min_size = min(self.size(), other.size())
+        self_data = self._impl.get_data() if self._is_rust else self._impl._data
+        other_data = other._impl.get_data() if other._is_rust else other._impl._data
+
+        min_size = min(len(self_data), len(other_data))
         for i in range(min_size):
-            if self.at(i) < other.at(i):
+            if self_data[i] < other_data[i]:
                 return True
-            elif self.at(i) > other.at(i):
+            elif self_data[i] > other_data[i]:
                 return False
-        return self.size() < other.size()
+        return len(self_data) < len(other_data)
 
     def __iter__(self) -> TypingIterator[T]:
         """
@@ -339,6 +369,8 @@ class vector:
         Returns:
             Iterator over vector elements.
         """
+        if self._is_rust:
+            return iter(self._impl.get_data())
         return iter(self._impl.get_data())
 
     def __copy__(self) -> 'vector':
@@ -360,9 +392,13 @@ class vector:
         Returns:
             A deep copy of the vector.
         """
-        new_vector = vector()
-        for i in range(self.size()):
-            new_vector.push_back(deepcopy(self.at(i), memo))
+        new_vector = vector(use_rust=self._is_rust)
+        if self._is_rust:
+            new_data = deepcopy(self._impl.get_data(), memo)
+            new_vector._impl.set_data(new_data)
+        else:
+            new_vector._impl._data = deepcopy(self._impl._data, memo)
+            new_vector._impl._capacity = self._impl._capacity
         return new_vector
 
 

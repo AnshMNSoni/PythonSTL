@@ -1,0 +1,12 @@
+[package]
+name = "pythonstl"
+version = "0.1.4"
+edition = "2021"
+description = "Rust backend extension for pythonstl data structures"
+
+[lib]
+name = "_rust"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.21.0", features = ["extension-module"] }

@@ -9,6 +9,12 @@ from copy import deepcopy
 from pythonstl.implementations.associative._set_impl import _SetImpl
 from pythonstl.core.iterator import SetIterator
 
+try:
+    from pythonstl._rust import RustSet
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
 T = TypeVar('T')
 
 
@@ -32,14 +38,19 @@ class stl_set:
         2
     """
 
-    def __init__(self) -> None:
+    def __init__(self, use_rust: bool = True) -> None:
         """
         Initialize an empty set.
 
         Time Complexity:
             O(1)
         """
-        self._impl = _SetImpl()
+        if use_rust and RUST_AVAILABLE:
+            self._impl = RustSet()
+            self._is_rust = True
+        else:
+            self._impl = _SetImpl()
+            self._is_rust = False
 
     def insert(self, value: T) -> None:
         """
@@ -117,7 +128,8 @@ class stl_set:
         Time Complexity:
             O(1)
         """
-        return self._impl.begin()
+        data = self._impl.get_data() if self._is_rust else self._impl._data
+        return SetIterator(data)
 
     def end(self) -> SetIterator:
         """
@@ -129,7 +141,8 @@ class stl_set:
         Time Complexity:
             O(1)
         """
-        return self._impl.end()
+        # Return an exhausted iterator
+        return SetIterator(set())
 
     def copy(self) -> 'stl_set':
         """
@@ -141,9 +154,11 @@ class stl_set:
         Time Complexity:
             O(n) where n is the number of elements
         """
-        new_set = stl_set()
-        for elem in self:
-            new_set.insert(elem)
+        new_set = stl_set(use_rust=self._is_rust)
+        if self._is_rust:
+            new_set._impl.set_data(self._impl.get_data())
+        else:
+            new_set._impl._data = self._impl._data.copy()
         return new_set
 
     # Python magic methods
@@ -203,12 +218,15 @@ class stl_set:
         """
         if not isinstance(other, stl_set):
             return False
-        if self.size() != other.size():
-            return False
-        for elem in self:
-            if not other.find(elem):
-                return False
-        return True
+
+        self_data = self._impl.get_data() if self._is_rust else self._impl._data
+        other_data = other._impl.get_data() if other._is_rust else other._impl._data
+
+        # BTreeSet elements are sorted, so direct list equality works for sorted comparison
+        if self._is_rust and other._is_rust:
+            return self_data == other_data
+
+        return set(self_data) == set(other_data)
 
     def __iter__(self) -> TypingIterator[T]:
         """
@@ -217,6 +235,8 @@ class stl_set:
         Returns:
             Iterator over set elements.
         """
+        if self._is_rust:
+            return iter(self._impl.get_data())
         return iter(self._impl.get_data())
 
     def __copy__(self) -> 'stl_set':
@@ -238,9 +258,12 @@ class stl_set:
         Returns:
             A deep copy of the set.
         """
-        new_set = stl_set()
-        for elem in self:
-            new_set.insert(deepcopy(elem, memo))
+        new_set = stl_set(use_rust=self._is_rust)
+        if self._is_rust:
+            new_data = deepcopy(self._impl.get_data(), memo)
+            new_set._impl.set_data(new_data)
+        else:
+            new_set._impl._data = deepcopy(self._impl._data, memo)
         return new_set
 
 

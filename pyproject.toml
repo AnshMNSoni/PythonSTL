@@ -1,10 +1,14 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.5,<2.0"]
+build-backend = "maturin"
+
+[tool.maturin]
+python-source = "."
+module-name = "pythonstl._rust"
 
 [project]
 name = "pythonstl"
-version = "0.1.4"
+version = "1.1.4"
 description = "C++ STL-style containers implemented in Python using the Facade Design Pattern"
 readme = "README.md"
 authors = [
