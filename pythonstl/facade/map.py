@@ -6,8 +6,15 @@ This module provides the public-facing map class that users interact with.
 
 from typing import TypeVar, Iterator as TypingIterator, Tuple
 from copy import deepcopy
+from pythonstl.core.exceptions import KeyNotFoundError
 from pythonstl.implementations.associative._map_impl import _MapImpl
 from pythonstl.core.iterator import MapIterator
+
+try:
+    from pythonstl._rust import RustMap
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
 
 K = TypeVar('K')
 V = TypeVar('V')
@@ -33,14 +40,19 @@ class stl_map:
         2
     """
 
-    def __init__(self) -> None:
+    def __init__(self, use_rust: bool = True) -> None:
         """
         Initialize an empty map.
 
         Time Complexity:
             O(1)
         """
-        self._impl = _MapImpl()
+        if use_rust and RUST_AVAILABLE:
+            self._impl = RustMap()
+            self._is_rust = True
+        else:
+            self._impl = _MapImpl()
+            self._is_rust = False
 
     def insert(self, key: K, value: V) -> None:
         """
@@ -104,6 +116,10 @@ class stl_map:
         Time Complexity:
             O(1) average case
         """
+        if not self.find(key):
+            raise KeyNotFoundError(key)
+        if self._is_rust:
+            return self._impl.at(key)
         return self._impl.at(key)
 
     def empty(self) -> bool:
@@ -140,6 +156,8 @@ class stl_map:
         Time Complexity:
             O(1)
         """
+        if self._is_rust:
+            return MapIterator(dict(self._impl.get_data()))
         return self._impl.begin()
 
     def end(self) -> MapIterator:
@@ -152,6 +170,8 @@ class stl_map:
         Time Complexity:
             O(1)
         """
+        if self._is_rust:
+            return MapIterator({})
         return self._impl.end()
 
     def copy(self) -> 'stl_map':
@@ -164,9 +184,11 @@ class stl_map:
         Time Complexity:
             O(n) where n is the number of key-value pairs
         """
-        new_map = stl_map()
-        for key, value in self:
-            new_map.insert(key, value)
+        new_map = stl_map(use_rust=self._is_rust)
+        if self._is_rust:
+            new_map._impl.set_data(self._impl.get_data())
+        else:
+            new_map._impl._data = self._impl._data.copy()
         return new_map
 
     # Python magic methods
@@ -226,12 +248,10 @@ class stl_map:
         """
         if not isinstance(other, stl_map):
             return False
-        if self.size() != other.size():
-            return False
-        for key, value in self:
-            if not other.find(key) or other.at(key) != value:
-                return False
-        return True
+        
+        self_data = dict(self._impl.get_data()) if self._is_rust else self._impl._data
+        other_data = dict(other._impl.get_data()) if other._is_rust else other._impl._data
+        return self_data == other_data
 
     def __iter__(self) -> TypingIterator[Tuple[K, V]]:
         """
@@ -240,6 +260,8 @@ class stl_map:
         Returns:
             Iterator over key-value pairs as tuples.
         """
+        if self._is_rust:
+            return iter(self._impl.get_data())
         return iter(self._impl.get_data().items())
 
     def __copy__(self) -> 'stl_map':
@@ -261,10 +283,16 @@ class stl_map:
         Returns:
             A deep copy of the map.
         """
-        new_map = stl_map()
-        for key, value in self:
-            new_map.insert(deepcopy(key, memo), deepcopy(value, memo))
+        new_map = stl_map(use_rust=self._is_rust)
+        if self._is_rust:
+            new_pairs = []
+            for k, v in self._impl.get_data():
+                new_pairs.append((deepcopy(k, memo), deepcopy(v, memo)))
+            new_map._impl.set_data(new_pairs)
+        else:
+            new_map._impl._data = deepcopy(self._impl._data, memo)
         return new_map
+
 
 
 __all__ = ['stl_map']

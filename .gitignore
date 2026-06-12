@@ -145,3 +145,7 @@ cython_debug/
 # OS
 .DS_Store
 Thumbs.db
+
+# Project-specific private documentation
+PUBLISHING.md
+publishing.md

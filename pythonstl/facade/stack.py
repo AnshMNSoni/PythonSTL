@@ -6,7 +6,14 @@ This module provides the public-facing stack class that users interact with.
 
 from typing import TypeVar
 from copy import deepcopy
+from pythonstl.core.exceptions import EmptyContainerError
 from pythonstl.implementations.linear._stack_impl import _StackImpl
+
+try:
+    from pythonstl._rust import RustStack
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
 
 T = TypeVar('T')
 
@@ -30,14 +37,19 @@ class stack:
         True
     """
 
-    def __init__(self) -> None:
+    def __init__(self, use_rust: bool = True) -> None:
         """
         Initialize an empty stack.
 
         Time Complexity:
             O(1)
         """
-        self._impl = _StackImpl()
+        if use_rust and RUST_AVAILABLE:
+            self._impl = RustStack()
+            self._is_rust = True
+        else:
+            self._impl = _StackImpl()
+            self._is_rust = False
 
     def push(self, value: T) -> None:
         """
@@ -61,6 +73,8 @@ class stack:
         Time Complexity:
             O(1)
         """
+        if self.empty():
+            raise EmptyContainerError("stack")
         self._impl.pop()
 
     def top(self) -> T:
@@ -76,6 +90,8 @@ class stack:
         Time Complexity:
             O(1)
         """
+        if self.empty():
+            raise EmptyContainerError("stack")
         return self._impl.top()
 
     def empty(self) -> bool:
@@ -112,9 +128,11 @@ class stack:
         Time Complexity:
             O(n) where n is the number of elements
         """
-        new_stack = stack()
-        # Copy internal data
-        new_stack._impl._data = self._impl._data.copy()
+        new_stack = stack(use_rust=self._is_rust)
+        if self._is_rust:
+            new_stack._impl.set_data(self._impl.get_data())
+        else:
+            new_stack._impl._data = self._impl._data.copy()
         return new_stack
 
     # Python magic methods
@@ -144,7 +162,10 @@ class stack:
         Returns:
             String representation showing stack contents.
         """
-        elements = [str(elem) for elem in self._impl._data]
+        if self._is_rust:
+            elements = [str(elem) for elem in self._impl.get_data()]
+        else:
+            elements = [str(elem) for elem in self._impl._data]
         return f"stack([{', '.join(elements)}])"
 
     def __eq__(self, other: object) -> bool:
@@ -159,7 +180,10 @@ class stack:
         """
         if not isinstance(other, stack):
             return False
-        return self._impl._data == other._impl._data
+        
+        self_data = self._impl.get_data() if self._is_rust else self._impl._data
+        other_data = other._impl.get_data() if other._is_rust else other._impl._data
+        return self_data == other_data
 
     def __copy__(self) -> 'stack':
         """
@@ -180,9 +204,14 @@ class stack:
         Returns:
             A deep copy of the stack.
         """
-        new_stack = stack()
-        new_stack._impl._data = deepcopy(self._impl._data, memo)
+        new_stack = stack(use_rust=self._is_rust)
+        if self._is_rust:
+            new_data = deepcopy(self._impl.get_data(), memo)
+            new_stack._impl.set_data(new_data)
+        else:
+            new_stack._impl._data = deepcopy(self._impl._data, memo)
         return new_stack
+
 
 
 __all__ = ['stack']

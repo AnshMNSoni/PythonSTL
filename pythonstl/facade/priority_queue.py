@@ -6,7 +6,14 @@ This module provides the public-facing priority_queue class that users interact 
 
 from typing import TypeVar
 from copy import deepcopy
+from pythonstl.core.exceptions import EmptyContainerError
 from pythonstl.implementations.heaps._priority_queue_impl import _PriorityQueueImpl
+
+try:
+    from pythonstl._rust import RustPriorityQueue
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
 
 T = TypeVar('T')
 
@@ -38,7 +45,7 @@ class priority_queue:
         10
     """
 
-    def __init__(self, comparator: str = "max") -> None:
+    def __init__(self, comparator: str = "max", use_rust: bool = True) -> None:
         """
         Initialize an empty priority queue.
 
@@ -49,7 +56,12 @@ class priority_queue:
         Time Complexity:
             O(1)
         """
-        self._impl = _PriorityQueueImpl(comparator)
+        if use_rust and RUST_AVAILABLE:
+            self._impl = RustPriorityQueue(comparator)
+            self._is_rust = True
+        else:
+            self._impl = _PriorityQueueImpl(comparator)
+            self._is_rust = False
         self._comparator = comparator
 
     def push(self, value: T) -> None:
@@ -74,6 +86,8 @@ class priority_queue:
         Time Complexity:
             O(log n) where n is the number of elements
         """
+        if self.empty():
+            raise EmptyContainerError("priority_queue")
         self._impl.pop()
 
     def top(self) -> T:
@@ -89,6 +103,8 @@ class priority_queue:
         Time Complexity:
             O(1)
         """
+        if self.empty():
+            raise EmptyContainerError("priority_queue")
         return self._impl.top()
 
     def empty(self) -> bool:
@@ -125,8 +141,11 @@ class priority_queue:
         Time Complexity:
             O(n) where n is the number of elements
         """
-        new_pq = priority_queue(self._comparator)
-        new_pq._impl._data = self._impl._data.copy()
+        new_pq = priority_queue(self._comparator, use_rust=self._is_rust)
+        if self._is_rust:
+            new_pq._impl.set_data(self._impl.get_data())
+        else:
+            new_pq._impl._data = self._impl._data.copy()
         return new_pq
 
     # Python magic methods
@@ -170,8 +189,12 @@ class priority_queue:
         """
         if not isinstance(other, priority_queue):
             return False
-        return (self._comparator == other._comparator
-                and self._impl._data == other._impl._data)
+        if self._comparator != other._comparator:
+            return False
+            
+        self_data = self._impl.get_data() if self._is_rust else self._impl._data
+        other_data = other._impl.get_data() if other._is_rust else other._impl._data
+        return self_data == other_data
 
     def __copy__(self) -> 'priority_queue':
         """
@@ -192,9 +215,14 @@ class priority_queue:
         Returns:
             A deep copy of the priority queue.
         """
-        new_pq = priority_queue(self._comparator)
-        new_pq._impl._data = deepcopy(self._impl._data, memo)
+        new_pq = priority_queue(self._comparator, use_rust=self._is_rust)
+        if self._is_rust:
+            new_data = deepcopy(self._impl.get_data(), memo)
+            new_pq._impl.set_data(new_data)
+        else:
+            new_pq._impl._data = deepcopy(self._impl._data, memo)
         return new_pq
+
 
 
 __all__ = ['priority_queue']

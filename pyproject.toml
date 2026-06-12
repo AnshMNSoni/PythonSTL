@@ -1,6 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.5,<2.0"]
+build-backend = "maturin"
+
+[tool.maturin]
+python-source = "."
+module-name = "pythonstl._rust"
 
 [project]
 name = "pythonstl"
