@@ -180,7 +180,7 @@ class stack:
         """
         if not isinstance(other, stack):
             return False
-        
+
         self_data = self._impl.get_data() if self._is_rust else self._impl._data
         other_data = other._impl.get_data() if other._is_rust else other._impl._data
         return self_data == other_data
@@ -211,7 +211,6 @@ class stack:
         else:
             new_stack._impl._data = deepcopy(self._impl._data, memo)
         return new_stack
-
 
 
 __all__ = ['stack']

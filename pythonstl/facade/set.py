@@ -218,14 +218,14 @@ class stl_set:
         """
         if not isinstance(other, stl_set):
             return False
-        
+
         self_data = self._impl.get_data() if self._is_rust else self._impl._data
         other_data = other._impl.get_data() if other._is_rust else other._impl._data
-        
+
         # BTreeSet elements are sorted, so direct list equality works for sorted comparison
         if self._is_rust and other._is_rust:
             return self_data == other_data
-            
+
         return set(self_data) == set(other_data)
 
     def __iter__(self) -> TypingIterator[T]:
@@ -265,7 +265,6 @@ class stl_set:
         else:
             new_set._impl._data = deepcopy(self._impl._data, memo)
         return new_set
-
 
 
 __all__ = ['stl_set']

@@ -336,7 +336,7 @@ class vector:
         """
         if not isinstance(other, vector):
             return False
-        
+
         self_data = self._impl.get_data() if self._is_rust else self._impl._data
         other_data = other._impl.get_data() if other._is_rust else other._impl._data
         return self_data == other_data
@@ -353,7 +353,7 @@ class vector:
         """
         self_data = self._impl.get_data() if self._is_rust else self._impl._data
         other_data = other._impl.get_data() if other._is_rust else other._impl._data
-        
+
         min_size = min(len(self_data), len(other_data))
         for i in range(min_size):
             if self_data[i] < other_data[i]:
@@ -400,7 +400,6 @@ class vector:
             new_vector._impl._data = deepcopy(self._impl._data, memo)
             new_vector._impl._capacity = self._impl._capacity
         return new_vector
-
 
 
 __all__ = ['vector']

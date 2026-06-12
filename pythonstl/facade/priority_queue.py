@@ -191,7 +191,7 @@ class priority_queue:
             return False
         if self._comparator != other._comparator:
             return False
-            
+
         self_data = self._impl.get_data() if self._is_rust else self._impl._data
         other_data = other._impl.get_data() if other._is_rust else other._impl._data
         return self_data == other_data
@@ -222,7 +222,6 @@ class priority_queue:
         else:
             new_pq._impl._data = deepcopy(self._impl._data, memo)
         return new_pq
-
 
 
 __all__ = ['priority_queue']

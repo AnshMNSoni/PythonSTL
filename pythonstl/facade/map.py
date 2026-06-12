@@ -248,7 +248,7 @@ class stl_map:
         """
         if not isinstance(other, stl_map):
             return False
-        
+
         self_data = dict(self._impl.get_data()) if self._is_rust else self._impl._data
         other_data = dict(other._impl.get_data()) if other._is_rust else other._impl._data
         return self_data == other_data
@@ -292,7 +292,6 @@ class stl_map:
         else:
             new_map._impl._data = deepcopy(self._impl._data, memo)
         return new_map
-
 
 
 __all__ = ['stl_map']

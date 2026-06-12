@@ -197,7 +197,7 @@ class queue:
         """
         if not isinstance(other, queue):
             return False
-        
+
         self_data = self._impl.get_data() if self._is_rust else self._impl._data
         other_data = other._impl.get_data() if other._is_rust else other._impl._data
         return self_data == other_data
@@ -228,7 +228,6 @@ class queue:
         else:
             new_queue._impl._data = deepcopy(self._impl._data, memo)
         return new_queue
-
 
 
 __all__ = ['queue']
