@@ -5,15 +5,16 @@ This module contains the internal implementation of a set
 following C++ STL semantics. Users should not access this directly.
 """
 
-from typing import TypeVar, Set as PySet
+from typing import TypeVar, List
 from pythonstl.core.iterator import SetIterator
+from pythonstl.core.avl_tree import AVLTree
 
 T = TypeVar('T')
 
 
 class _SetImpl:
     """
-    Internal implementation of a set using Python's built-in set.
+    Internal implementation of a set using an AVL Tree.
 
     This class should not be accessed directly by users.
     Use the facade class `stl_set` instead.
@@ -26,7 +27,7 @@ class _SetImpl:
         Time Complexity:
             O(1)
         """
-        self._data: PySet[T] = set()
+        self._data: AVLTree[T, None] = AVLTree()
 
     def insert(self, value: T) -> None:
         """
@@ -36,7 +37,7 @@ class _SetImpl:
             value: The element to insert into the set.
 
         Time Complexity:
-            O(1) average case
+            O(log n)
         """
         self._data.add(value)
 
@@ -51,7 +52,7 @@ class _SetImpl:
             Does nothing if the element is not present (matches C++ STL behavior).
 
         Time Complexity:
-            O(1) average case
+            O(log n)
         """
         self._data.discard(value)
 
@@ -66,7 +67,7 @@ class _SetImpl:
             True if the element exists, False otherwise.
 
         Time Complexity:
-            O(1) average case
+            O(log n)
         """
         return value in self._data
 
@@ -110,8 +111,6 @@ class _SetImpl:
         """
         Get iterator to the end of the set.
 
-        Note: In Python sets, end() returns an exhausted iterator.
-
         Returns:
             Iterator pointing past the last element.
 
@@ -122,17 +121,17 @@ class _SetImpl:
         it = SetIterator(set())
         return it
 
-    def get_data(self) -> PySet[T]:
+    def get_data(self) -> List[T]:
         """
-        Get a copy of the internal data for iteration.
+        Get a copy of the internal data as a sorted list.
 
         Returns:
-            Copy of the internal data set.
+            Sorted list of the internal elements.
 
         Time Complexity:
             O(n) where n is the number of elements
         """
-        return self._data.copy()
+        return list(self._data)
 
 
 __all__ = ['_SetImpl']

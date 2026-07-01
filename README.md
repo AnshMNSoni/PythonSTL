@@ -320,20 +320,20 @@ Full Python integration while maintaining STL compatibility:
 - Copy protocol support
 - Maintains backward compatibility
 
-## 📊 Performance Benchmarks
+## Performance Benchmarks
 
 PythonSTL includes a compiled Rust backend (built with PyO3 and Maturin) for high-performance operations, alongside pure-Python fallbacks. Below are the actual performance comparison results against pure-Python and native C++ (compiled with `g++ -O3`).
 
-### 1. Containers Performance (50,000 Operations)
+### 1. Containers Performance Benchmarks (3-Way Comparison)
 
-| Container Class | Pure Python | Python + Rust | Speedup Status | Design / Algorithmic Trade-off |
-| :--- | :--- | :--- | :--- | :--- |
-| **Stack** | 0.2324s | 0.1581s | **1.47x faster** | Linear stack operations. Limited by FFI call overhead. |
-| **Queue** | 0.2428s | 0.1608s | **1.51x faster** | FIFO operations. Limited by FFI call overhead. |
-| **Vector** | 0.0041s | 0.0034s | **1.20x faster** | Push_back & random access indices. Limited by FFI. |
-| **Set** | 0.0216s | 0.1111s | *0.19x faster* | **Sorted Set vs Unordered Hash Set** (replicates C++ B-Tree structure) |
-| **Map** | 0.0389s | 0.1959s | *0.20x faster* | **Sorted Map vs Unordered Hash Map** (replicates C++ B-Tree structure) |
-| **Priority Queue**| 0.0764s | 0.0959s | *0.80x faster* | Custom binary heap vs. C-optimized `heapq` module. |
+| Container Class | Pure Python (STL) | Python + Rust (STL) | Native Built-in | Rust Speedup | Design / Algorithmic Trade-off |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Stack** | 0.2441s | 0.2178s | 0.0667s | **1.12x faster** | Linear stack operations. Limited by FFI call overhead. |
+| **Queue** | 0.2445s | 0.2078s | 0.0520s | **1.18x faster** | FIFO operations. Limited by FFI call overhead. |
+| **Vector** | 0.0065s | 0.0038s | 0.0015s | **1.70x faster** | Push_back & random access indices. Limited by FFI. |
+| **Set** | 0.1572s | 0.0197s | 0.0014s | **8.00x faster** | AVL Tree (Python) vs. BTree (Rust) vs. Unordered Hash Set (Native). |
+| **Map** | 0.1632s | 0.0347s | 0.0020s | **4.70x faster** | AVL Tree (Python) vs. BTree (Rust) vs. Unordered Hash Map (Native). |
+| **Priority Queue**| 0.0238s | 0.0371s | 0.0054s | *0.64x faster* | Custom binary heap vs. C-optimized `heapq` module. |
 
 * **Sorted Trees vs. Hash Tables**: Python's native `set` and `dict` are highly optimized $O(1)$ hash tables written in C. PythonSTL sets/maps replicate C++'s `std::set`/`std::map` using sorted trees (`BTreeSet`/`BTreeMap`), which run in $O(\log N)$ and sort keys.
 * **FFI overhead**: Storing arbitrary Python objects in Rust requires acquiring the GIL and calling back into the Python VM for comparisons, creating high FFI boundaries.
@@ -388,7 +388,7 @@ pytest tests/
 pytest tests/ --cov=pythonstl --cov-report=html
 ```
 
-## 🛠️ Development
+## Development
 
 ### Setup
 
@@ -411,15 +411,22 @@ flake8 pythonstl/
 pytest && mypy pythonstl/ && flake8 pythonstl/
 ```
 
-## Note
-➡️ The goal is NOT to replace Python built-ins.<br>
-➡️ The goal is to provide: 1) Conceptual clarity 2) STL familiarity for C++ developers 3) A structured learning bridge for DSA <br>
+## ❓ Myths & Common Misconceptions
 
-## 📝 License
+### Myth 1: "This library has no actual use because online platforms (LeetCode, Codeforces) don't support external libraries."
+* **Reality:** Correct! You cannot import external packages during live programming contests. The goal of `PythonSTL` is **not** to be used in live contests. Instead, it serves as a local prototyping, learning, and transition tool. C++ developers moving to Python can use it locally to adapt their mental model of STL data structures to Python's syntax, and to practice structure design during mock interviews.
+
+### Myth 2: "Python's native structures are better and faster, so the Rust backend is unnecessary over-engineering."
+* **Reality:** While Python's built-ins are great, Python actually lacks native equivalents for some core STL behaviors:
+  - **No Sorted Set/Map:** Python's built-in `set` and `dict` are hash-based and unordered. To maintain a sorted collection, you'd have to sort repeatedly ($\mathcal{O}(n \log n)$). `PythonSTL`'s Rust backend provides a true $\mathcal{O}(\log n)$ sorted `BTreeSet` and `BTreeMap` (and the pure-Python fallback uses a balanced AVL Tree).
+  - **No Customizable Priority Queue:** Python’s `heapq` is strictly a min-heap, and custom comparators are difficult to write. `PythonSTL` provides max/min heaps and custom sorting keys out-of-the-box.
+  - **Engineering Showcase:** The Rust backend built via Maturin and PyO3 demonstrates a hybrid performance architecture. In real-world projects (like Polars, Pydantic, or cryptography libraries), performance-critical loops are written in compiled languages and bound to Python. This library serves as an educational blueprint for that pattern.
+
+## License
 
 MIT License - see LICENSE file for details.
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please:
 1. Fork the repository
@@ -433,5 +440,6 @@ Contributions are welcome! Please:
 
 - GitHub: [@AnshMNSoni](https://github.com/AnshMNSoni)
 - Issues: [GitHub Issues](https://github.com/AnshMNSoni/PythonSTL/issues)
+- Linkedin: [@anshmnsoni](https://linkedin.com/in/anshmnsoni)
 
 **PythonSTL v1.1.6** - Bringing C++ STL elegance to Python

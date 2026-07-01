@@ -8,6 +8,7 @@ following C++ STL semantics. Users should not access this directly.
 from typing import TypeVar, Dict
 from pythonstl.core.exceptions import KeyNotFoundError
 from pythonstl.core.iterator import MapIterator
+from pythonstl.core.avl_tree import AVLTree
 
 K = TypeVar('K')
 V = TypeVar('V')
@@ -15,7 +16,7 @@ V = TypeVar('V')
 
 class _MapImpl:
     """
-    Internal implementation of a map using Python's built-in dict.
+    Internal implementation of a map using an AVL Tree.
 
     This class should not be accessed directly by users.
     Use the facade class `stl_map` instead.
@@ -28,7 +29,7 @@ class _MapImpl:
         Time Complexity:
             O(1)
         """
-        self._data: Dict[K, V] = {}
+        self._data: AVLTree[K, V] = AVLTree()
 
     def insert(self, key: K, value: V) -> None:
         """
@@ -42,7 +43,7 @@ class _MapImpl:
             If the key already exists, the value is updated.
 
         Time Complexity:
-            O(1) average case
+            O(log n)
         """
         self._data[key] = value
 
@@ -57,9 +58,9 @@ class _MapImpl:
             Does nothing if the key is not present (matches C++ STL behavior).
 
         Time Complexity:
-            O(1) average case
+            O(log n)
         """
-        self._data.pop(key, None)
+        self._data.discard(key)
 
     def find(self, key: K) -> bool:
         """
@@ -72,7 +73,7 @@ class _MapImpl:
             True if the key exists, False otherwise.
 
         Time Complexity:
-            O(1) average case
+            O(log n)
         """
         return key in self._data
 
@@ -90,11 +91,12 @@ class _MapImpl:
             KeyNotFoundError: If the key does not exist.
 
         Time Complexity:
-            O(1) average case
+            O(log n)
         """
-        if key not in self._data:
+        try:
+            return self._data[key]
+        except KeyError:
             raise KeyNotFoundError(key)
-        return self._data[key]
 
     def empty(self) -> bool:
         """
@@ -136,8 +138,6 @@ class _MapImpl:
         """
         Get iterator to the end of the map.
 
-        Note: In Python dicts, end() returns an exhausted iterator.
-
         Returns:
             Iterator pointing past the last key-value pair.
 
@@ -150,15 +150,15 @@ class _MapImpl:
 
     def get_data(self) -> Dict[K, V]:
         """
-        Get a copy of the internal data for iteration.
+        Get a copy of the internal data as a sorted dictionary.
 
         Returns:
-            Copy of the internal data dict.
+            Sorted copy of the internal data dict.
 
         Time Complexity:
             O(n) where n is the number of key-value pairs
         """
-        return self._data.copy()
+        return dict(self._data.items())
 
 
 __all__ = ['_MapImpl']
