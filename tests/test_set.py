@@ -95,3 +95,13 @@ class TestSet:
         assert s.find("banana") is True
         s.erase("banana")
         assert s.find("banana") is False
+
+    def test_sorted_order(self):
+        """Test that set elements are always sorted for both backends."""
+        for use_rust in [True, False]:
+            s = stl_set(use_rust=use_rust)
+            s.insert(30)
+            s.insert(10)
+            s.insert(20)
+            # Iterating should yield sorted elements
+            assert list(s) == [10, 20, 30]

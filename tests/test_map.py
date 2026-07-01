@@ -109,3 +109,13 @@ class TestMap:
         assert m.at(1) == "one"
         assert m.at(2) == "two"
         assert m.find(3) is True
+
+    def test_sorted_order(self):
+        """Test that map elements are always sorted by key for both backends."""
+        for use_rust in [True, False]:
+            m = stl_map(use_rust=use_rust)
+            m.insert(30, "thirty")
+            m.insert(10, "ten")
+            m.insert(20, "twenty")
+            # Iterating should yield sorted key-value pairs
+            assert list(m) == [(10, "ten"), (20, "twenty"), (30, "thirty")]
