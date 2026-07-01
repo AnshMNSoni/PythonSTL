@@ -328,12 +328,12 @@ PythonSTL includes a compiled Rust backend (built with PyO3 and Maturin) for hig
 
 | Container Class | Pure Python | Python + Rust | Speedup Status | Design / Algorithmic Trade-off |
 | :--- | :--- | :--- | :--- | :--- |
-| **Stack** | 0.2470s | 0.1604s | **1.54x faster** | Linear stack operations. Limited by FFI call overhead. |
-| **Queue** | 0.2547s | 0.1946s | **1.31x faster** | FIFO operations. Limited by FFI call overhead. |
-| **Vector** | 0.0050s | 0.0045s | **1.10x faster** | Push_back & random access indices. Limited by FFI. |
-| **Set** | 0.0337s | 0.1844s | *0.18x faster* | **Sorted Set vs Unordered Hash Set** (replicates C++ B-Tree structure) |
-| **Map** | 0.0421s | 0.2104s | *0.20x faster* | **Sorted Map vs Unordered Hash Map** (replicates C++ B-Tree structure) |
-| **Priority Queue**| 0.0584s | 0.0900s | *0.65x faster* | Custom binary heap vs. C-optimized `heapq` module. |
+| **Stack** | 0.2324s | 0.1581s | **1.47x faster** | Linear stack operations. Limited by FFI call overhead. |
+| **Queue** | 0.2428s | 0.1608s | **1.51x faster** | FIFO operations. Limited by FFI call overhead. |
+| **Vector** | 0.0041s | 0.0034s | **1.20x faster** | Push_back & random access indices. Limited by FFI. |
+| **Set** | 0.0216s | 0.1111s | *0.19x faster* | **Sorted Set vs Unordered Hash Set** (replicates C++ B-Tree structure) |
+| **Map** | 0.0389s | 0.1959s | *0.20x faster* | **Sorted Map vs Unordered Hash Map** (replicates C++ B-Tree structure) |
+| **Priority Queue**| 0.0764s | 0.0959s | *0.80x faster* | Custom binary heap vs. C-optimized `heapq` module. |
 
 * **Sorted Trees vs. Hash Tables**: Python's native `set` and `dict` are highly optimized $O(1)$ hash tables written in C. PythonSTL sets/maps replicate C++'s `std::set`/`std::map` using sorted trees (`BTreeSet`/`BTreeMap`), which run in $O(\log N)$ and sort keys.
 * **FFI overhead**: Storing arbitrary Python objects in Rust requires acquiring the GIL and calling back into the Python VM for comparisons, creating high FFI boundaries.
@@ -342,18 +342,18 @@ PythonSTL includes a compiled Rust backend (built with PyO3 and Maturin) for hig
 
 | Algorithm Name | Pure Python (Middle Pivot) | Python + Rust | Pure C++ (O3) | Rust Speedup | Design & FFI Insights |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **next_permutation** | 0.3158s | 0.2530s | 0.0020s | **1.2x** | Lexicographical rearrangement. Limited by FFI conversions. |
-| **nth_element** | 0.0068s | 0.0047s | 0.0000s | **1.5x** | Quickselect median find. (Previously **70.85s** before optimization). |
-| **partition** | 0.0193s | 0.0197s | 0.0000s | **1.0x** | Lambda-predicate partitioning. Dominated by FFI callback overhead. |
+| **next_permutation** | 0.2413s | 0.1428s | 0.0000s | **1.7x** | Lexicographical rearrangement. Limited by FFI conversions. |
+| **nth_element** | 0.0064s | 0.0052s | 0.0000s | **1.2x** | Quickselect median find. (Previously **70.85s** before optimization). |
+| **partition** | 0.0227s | 0.0164s | 0.0003s | **1.4x** | Lambda-predicate partitioning. Dominated by FFI callback overhead. |
 
-* **Algorithmic Pivot Vulnerabilities**: A naive Lomuto partition (`pivot = arr[right]`) causes $O(N^2)$ worst-case time on already-sorted or reversed lists (taking **70.85s**). By switching PythonSTL to a middle-pivot (`arr[mid]`), we restore $O(N)$ average time (**0.0068s**).
+* **Algorithmic Pivot Vulnerabilities**: A naive Lomuto partition (`pivot = arr[right]`) causes $O(N^2)$ worst-case time on already-sorted or reversed lists (taking **70.85s**). By switching PythonSTL to a middle-pivot (`arr[mid]`), we restore $O(N)$ average time (**0.0064s**).
 
 ### 3. Binary Search (5,000 Queries on 1,000,000 elements)
 
 | Search Mode / Comparator | Pure Python | Python + Rust | Pure C++ (O3) | Rust Speedup | Systems & Design Insights |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Standard (`<` comparison)** | 0.0214s | 0.0028s | 0.0000s | **7.5x** | Preserves $O(\log N)$ via direct list indexing. |
-| **Custom Comparator (lambda)**| 0.0251s | 0.0074s | N/A | **3.4x** | Overcomes Python loop overhead despite FFI callbacks. |
+| **Standard (`<` comparison)** | 0.0182s | 0.0034s | 0.0000s | **5.3x** | Preserves $O(\log N)$ via direct list indexing. |
+| **Custom Comparator (lambda)**| 0.0180s | 0.0078s | N/A | **2.3x** | Overcomes Python loop overhead despite FFI callbacks. |
 
 * **Direct Indexing**: Instead of extracting/copying the entire list (an $O(N)$ operation), the Rust backend uses direct GIL-bound indexing (`arr.get_item(mid)`), maintaining the strict $O(\log N)$ search complexity.
 
