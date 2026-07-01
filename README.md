@@ -358,6 +358,21 @@ PythonSTL includes a compiled Rust backend (built with PyO3 and Maturin) for hig
 * **Direct Indexing**: Instead of extracting/copying the entire list (an $O(N)$ operation), the Rust backend uses direct GIL-bound indexing (`arr.get_item(mid)`), maintaining the strict $O(\log N)$ search complexity.
 
 
+## ⚠️ Performance Characteristics & Limitations
+
+While PythonSTL provides powerful optimizations, it is essential to understand the systems-level design characteristics and FFI boundaries when using this library:
+
+1. **FFI (Foreign Function Interface) Overhead on Granular Operations:**
+   * For container methods like `stack.push()` / `pop()` or `queue.push()` / `pop()`, the Rust backend is only marginally faster (around **1.3x - 1.5x**) than pure Python.
+   * **Why:** Calling a compiled function from Python space millions of times introduces constant-factor FFI boundary crossing overhead (argument validation, GIL checks, etc.) that dominates the execution time.
+   * **Guidance:** The Rust backend excels at **computation-intensive algorithms** (like `bubble_sort` running **190x+ faster** or `binary_search` running **5x+ faster**) that cross the FFI boundary only once.
+
+2. **Sorted Trees vs. Hash Tables (Set & Map):**
+   * Rust-backed `stl_set` and `stl_map` are slower than Python's native `set` and `dict`.
+   * **Why:** Python's native sets/dicts are highly optimized unordered hash tables ($O(1)$ average complexity). Replicating C++ STL associative compliance requires sorted trees (Rust's `BTreeSet` and `BTreeMap`), which run in $O(\log N)$ time and execute callbacks into the Python VM for custom comparisons.
+   * **Guidance:** Use `stl_set`/`stl_map` when you explicitly require keys to be maintained in **sorted order** (e.g., for range/boundary lookups) matching standard C++ semantics, rather than simple hash-lookup speed.
+
+
 ## Testing
 
 Run the test suite:
