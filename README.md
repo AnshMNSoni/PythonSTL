@@ -434,4 +434,4 @@ Contributions are welcome! Please:
 - GitHub: [@AnshMNSoni](https://github.com/AnshMNSoni)
 - Issues: [GitHub Issues](https://github.com/AnshMNSoni/PythonSTL/issues)
 
-**PythonSTL v1.1.5** - Bringing C++ STL elegance to Python
+**PythonSTL v1.1.6** - Bringing C++ STL elegance to Python
