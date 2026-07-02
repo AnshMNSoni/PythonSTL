@@ -13,7 +13,18 @@ struct PyObjectOrd(PyObject);
 impl PartialEq for PyObjectOrd {
     fn eq(&self, other: &Self) -> bool {
         Python::with_gil(|py| {
-            self.0.bind(py).eq(other.0.bind(py)).unwrap_or(false)
+            let self_ref = self.0.bind(py);
+            let other_ref = other.0.bind(py);
+            if let (Ok(a), Ok(b)) = (self_ref.extract::<i64>(), other_ref.extract::<i64>()) {
+                return a == b;
+            }
+            if let (Ok(a), Ok(b)) = (self_ref.extract::<f64>(), other_ref.extract::<f64>()) {
+                return a == b;
+            }
+            if let (Ok(a), Ok(b)) = (self_ref.extract::<&str>(), other_ref.extract::<&str>()) {
+                return a == b;
+            }
+            self_ref.eq(other_ref).unwrap_or(false)
         })
     }
 }
@@ -31,6 +42,17 @@ impl Ord for PyObjectOrd {
         Python::with_gil(|py| {
             let self_ref = self.0.bind(py);
             let other_ref = other.0.bind(py);
+            if let (Ok(a), Ok(b)) = (self_ref.extract::<i64>(), other_ref.extract::<i64>()) {
+                return a.cmp(&b);
+            }
+            if let (Ok(a), Ok(b)) = (self_ref.extract::<f64>(), other_ref.extract::<f64>()) {
+                if let Some(ord) = a.partial_cmp(&b) {
+                    return ord;
+                }
+            }
+            if let (Ok(a), Ok(b)) = (self_ref.extract::<&str>(), other_ref.extract::<&str>()) {
+                return a.cmp(&b);
+            }
             if self_ref.eq(other_ref).unwrap_or(false) {
                 Ordering::Equal
             } else if self_ref.lt(other_ref).unwrap_or(false) {
@@ -448,6 +470,51 @@ fn bubble_sort(mut arr: Vec<i32>) -> PyResult<Vec<i32>> {
 
 // ----------------- C++ STL Algorithms -----------------
 
+fn pyobject_lt(py: Python, a: &PyObject, b: &PyObject) -> PyResult<bool> {
+    let a_bound = a.bind(py);
+    let b_bound = b.bind(py);
+    if let (Ok(x), Ok(y)) = (a_bound.extract::<i64>(), b_bound.extract::<i64>()) {
+        return Ok(x < y);
+    }
+    if let (Ok(x), Ok(y)) = (a_bound.extract::<f64>(), b_bound.extract::<f64>()) {
+        return Ok(x < y);
+    }
+    if let (Ok(x), Ok(y)) = (a_bound.extract::<&str>(), b_bound.extract::<&str>()) {
+        return Ok(x < y);
+    }
+    a_bound.lt(b_bound)
+}
+
+fn pyobject_gt(py: Python, a: &PyObject, b: &PyObject) -> PyResult<bool> {
+    let a_bound = a.bind(py);
+    let b_bound = b.bind(py);
+    if let (Ok(x), Ok(y)) = (a_bound.extract::<i64>(), b_bound.extract::<i64>()) {
+        return Ok(x > y);
+    }
+    if let (Ok(x), Ok(y)) = (a_bound.extract::<f64>(), b_bound.extract::<f64>()) {
+        return Ok(x > y);
+    }
+    if let (Ok(x), Ok(y)) = (a_bound.extract::<&str>(), b_bound.extract::<&str>()) {
+        return Ok(x > y);
+    }
+    a_bound.gt(b_bound)
+}
+
+fn pyobject_eq(py: Python, a: &PyObject, b: &PyObject) -> PyResult<bool> {
+    let a_bound = a.bind(py);
+    let b_bound = b.bind(py);
+    if let (Ok(x), Ok(y)) = (a_bound.extract::<i64>(), b_bound.extract::<i64>()) {
+        return Ok(x == y);
+    }
+    if let (Ok(x), Ok(y)) = (a_bound.extract::<f64>(), b_bound.extract::<f64>()) {
+        return Ok(x == y);
+    }
+    if let (Ok(x), Ok(y)) = (a_bound.extract::<&str>(), b_bound.extract::<&str>()) {
+        return Ok(x == y);
+    }
+    a_bound.eq(b_bound)
+}
+
 #[pyfunction]
 fn next_permutation(py: Python, arr: &Bound<'_, PyList>) -> PyResult<bool> {
     let mut vec: Vec<PyObject> = arr.extract()?;
@@ -458,9 +525,9 @@ fn next_permutation(py: Python, arr: &Bound<'_, PyList>) -> PyResult<bool> {
     let mut i = vec.len() - 2;
     let mut found = false;
     loop {
-        let current = vec[i].bind(py);
-        let next = vec[i + 1].bind(py);
-        if current.lt(next).unwrap_or(false) {
+        let current = &vec[i];
+        let next = &vec[i + 1];
+        if pyobject_lt(py, current, next).unwrap_or(false) {
             found = true;
             break;
         }
@@ -480,7 +547,7 @@ fn next_permutation(py: Python, arr: &Bound<'_, PyList>) -> PyResult<bool> {
     
     let mut j = vec.len() - 1;
     while j > i {
-        if vec[j].bind(py).gt(vec[i].bind(py)).unwrap_or(false) {
+        if pyobject_gt(py, &vec[j], &vec[i]).unwrap_or(false) {
             break;
         }
         j -= 1;
@@ -506,9 +573,9 @@ fn prev_permutation(py: Python, arr: &Bound<'_, PyList>) -> PyResult<bool> {
     let mut i = vec.len() - 2;
     let mut found = false;
     loop {
-        let current = vec[i].bind(py);
-        let next = vec[i + 1].bind(py);
-        if current.gt(next).unwrap_or(false) {
+        let current = &vec[i];
+        let next = &vec[i + 1];
+        if pyobject_gt(py, current, next).unwrap_or(false) {
             found = true;
             break;
         }
@@ -528,7 +595,7 @@ fn prev_permutation(py: Python, arr: &Bound<'_, PyList>) -> PyResult<bool> {
     
     let mut j = vec.len() - 1;
     while j > i {
-        if vec[j].bind(py).lt(vec[i].bind(py)).unwrap_or(false) {
+        if pyobject_lt(py, &vec[j], &vec[i]).unwrap_or(false) {
             break;
         }
         j -= 1;
@@ -579,9 +646,8 @@ fn partition_q(arr: &mut Vec<PyObject>, left: usize, right: usize) -> usize {
     let mut i = left;
     Python::with_gil(|py| {
         let pivot_val = arr[right].clone_ref(py);
-        let pivot_bound = pivot_val.bind(py);
         for j in left..right {
-            if arr[j].bind(py).lt(pivot_bound).unwrap_or(false) {
+            if pyobject_lt(py, &arr[j], &pivot_val).unwrap_or(false) {
                 arr.swap(i, j);
                 i += 1;
             }
@@ -609,23 +675,22 @@ fn partition(py: Python, arr: &Bound<'_, PyList>, predicate: PyObject) -> PyResu
     Ok(i)
 }
 
-fn lower_bound_impl(py: Python, arr: &Bound<'_, PyList>, val: &PyObject, comp: &Option<PyObject>) -> PyResult<usize> {
-    let len = arr.len();
+fn lower_bound_impl(py: Python, vec: &[PyObject], val: &PyObject, comp: &Option<PyObject>) -> PyResult<usize> {
     let mut left = 0;
-    let mut right = len;
+    let mut right = vec.len();
     
     while left < right {
         let mid = left + (right - left) / 2;
-        let mid_val = arr.get_item(mid)?;
+        let mid_val = &vec[mid];
         
         let is_less = match comp {
             Some(c) => {
-                let mid_obj = mid_val.to_object(py);
+                let mid_obj = mid_val.clone_ref(py);
                 let res: bool = c.call1(py, (mid_obj, val.clone_ref(py)))?.extract(py)?;
                 res
             }
             None => {
-                mid_val.lt(val)?
+                pyobject_lt(py, mid_val, val)?
             }
         };
         
@@ -638,23 +703,22 @@ fn lower_bound_impl(py: Python, arr: &Bound<'_, PyList>, val: &PyObject, comp: &
     Ok(left)
 }
 
-fn upper_bound_impl(py: Python, arr: &Bound<'_, PyList>, val: &PyObject, comp: &Option<PyObject>) -> PyResult<usize> {
-    let len = arr.len();
+fn upper_bound_impl(py: Python, vec: &[PyObject], val: &PyObject, comp: &Option<PyObject>) -> PyResult<usize> {
     let mut left = 0;
-    let mut right = len;
+    let mut right = vec.len();
     
     while left < right {
         let mid = left + (right - left) / 2;
-        let mid_val = arr.get_item(mid)?;
+        let mid_val = &vec[mid];
         
         let is_less = match comp {
             Some(c) => {
-                let mid_obj = mid_val.to_object(py);
+                let mid_obj = mid_val.clone_ref(py);
                 let res: bool = c.call1(py, (val.clone_ref(py), mid_obj))?.extract(py)?;
                 res
             }
             None => {
-                val.bind(py).lt(&mid_val)?
+                pyobject_lt(py, val, mid_val)?
             }
         };
         
@@ -669,32 +733,35 @@ fn upper_bound_impl(py: Python, arr: &Bound<'_, PyList>, val: &PyObject, comp: &
 
 #[pyfunction]
 fn lower_bound(py: Python, arr: &Bound<'_, PyList>, val: PyObject, comp: Option<PyObject>) -> PyResult<usize> {
-    lower_bound_impl(py, arr, &val, &comp)
+    let vec: Vec<PyObject> = arr.extract()?;
+    lower_bound_impl(py, &vec, &val, &comp)
 }
 
 #[pyfunction]
 fn upper_bound(py: Python, arr: &Bound<'_, PyList>, val: PyObject, comp: Option<PyObject>) -> PyResult<usize> {
-    upper_bound_impl(py, arr, &val, &comp)
+    let vec: Vec<PyObject> = arr.extract()?;
+    upper_bound_impl(py, &vec, &val, &comp)
 }
 
 #[pyfunction]
 fn binary_search(py: Python, arr: &Bound<'_, PyList>, val: PyObject, comp: Option<PyObject>) -> PyResult<bool> {
-    let len = arr.len();
+    let vec: Vec<PyObject> = arr.extract()?;
+    let len = vec.len();
     if len == 0 {
         return Ok(false);
     }
-    let idx = lower_bound_impl(py, arr, &val, &comp)?;
+    let idx = lower_bound_impl(py, &vec, &val, &comp)?;
     if idx < len {
-        let elem = arr.get_item(idx)?;
+        let elem = &vec[idx];
         let eq = match &comp {
             Some(c) => {
-                let elem_obj = elem.to_object(py);
+                let elem_obj = elem.clone_ref(py);
                 let less1: bool = c.call1(py, (elem_obj.clone(), val.clone_ref(py)))?.extract(py)?;
                 let less2: bool = c.call1(py, (val.clone_ref(py), elem_obj))?.extract(py)?;
                 !less1 && !less2
             }
             None => {
-                elem.eq(&val)?
+                pyobject_eq(py, elem, &val)?
             }
         };
         Ok(eq)
@@ -705,8 +772,9 @@ fn binary_search(py: Python, arr: &Bound<'_, PyList>, val: PyObject, comp: Optio
 
 #[pyfunction]
 fn equal_range(py: Python, arr: &Bound<'_, PyList>, val: PyObject, comp: Option<PyObject>) -> PyResult<(usize, usize)> {
-    let lb = lower_bound_impl(py, arr, &val, &comp)?;
-    let ub = upper_bound_impl(py, arr, &val, &comp)?;
+    let vec: Vec<PyObject> = arr.extract()?;
+    let lb = lower_bound_impl(py, &vec, &val, &comp)?;
+    let ub = upper_bound_impl(py, &vec, &val, &comp)?;
     Ok((lb, ub))
 }
 

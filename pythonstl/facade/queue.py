@@ -50,6 +50,7 @@ class queue:
         else:
             self._impl = _QueueImpl()
             self._is_rust = False
+        self._size = 0
 
     def push(self, value: T) -> None:
         """
@@ -62,6 +63,7 @@ class queue:
             O(1)
         """
         self._impl.push(value)
+        self._size += 1
 
     def pop(self) -> None:
         """
@@ -73,9 +75,10 @@ class queue:
         Time Complexity:
             O(1)
         """
-        if self.empty():
+        if self._size == 0:
             raise EmptyContainerError("queue")
         self._impl.pop()
+        self._size -= 1
 
     def front(self) -> T:
         """
@@ -90,7 +93,7 @@ class queue:
         Time Complexity:
             O(1)
         """
-        if self.empty():
+        if self._size == 0:
             raise EmptyContainerError("queue")
         return self._impl.front()
 
@@ -107,7 +110,7 @@ class queue:
         Time Complexity:
             O(1)
         """
-        if self.empty():
+        if self._size == 0:
             raise EmptyContainerError("queue")
         return self._impl.back()
 
@@ -121,7 +124,7 @@ class queue:
         Time Complexity:
             O(1)
         """
-        return self._impl.empty()
+        return self._size == 0
 
     def size(self) -> int:
         """
@@ -133,7 +136,7 @@ class queue:
         Time Complexity:
             O(1)
         """
-        return self._impl.size()
+        return self._size
 
     def copy(self) -> 'queue':
         """
@@ -150,6 +153,7 @@ class queue:
             new_queue._impl.set_data(self._impl.get_data())
         else:
             new_queue._impl._data = self._impl._data.copy()
+        new_queue._size = self._size
         return new_queue
 
     # Python magic methods
@@ -227,6 +231,7 @@ class queue:
             new_queue._impl.set_data(new_data)
         else:
             new_queue._impl._data = deepcopy(self._impl._data, memo)
+        new_queue._size = self._size
         return new_queue
 
 

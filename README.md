@@ -322,21 +322,27 @@ Full Python integration while maintaining STL compatibility:
 
 ## Performance Benchmarks
 
-PythonSTL includes a compiled Rust backend (built with PyO3 and Maturin) for high-performance operations, alongside pure-Python fallbacks. Below are the actual performance comparison results against pure-Python and native C++ (compiled with `g++ -O3`).
+PythonSTL includes a compiled Rust backend (built with PyO3 and Maturin) for high-performance operations, alongside pure-Python fallbacks. 
 
-### 1. Containers Performance Benchmarks (3-Way Comparison)
+### ⚠️ A Note on Algorithmic and FFI Characteristics
 
-| Container Class | Pure Python (STL) | Python + Rust (STL) | Native Built-in | Rust Speedup | Design / Algorithmic Trade-off |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Stack** | 0.2441s | 0.2178s | 0.0667s | **1.12x faster** | Linear stack operations. Limited by FFI call overhead. |
-| **Queue** | 0.2445s | 0.2078s | 0.0520s | **1.18x faster** | FIFO operations. Limited by FFI call overhead. |
-| **Vector** | 0.0065s | 0.0038s | 0.0015s | **1.70x faster** | Push_back & random access indices. Limited by FFI. |
-| **Set** | 0.1572s | 0.0197s | 0.0014s | **8.00x faster** | AVL Tree (Python) vs. BTree (Rust) vs. Unordered Hash Set (Native). |
-| **Map** | 0.1632s | 0.0347s | 0.0020s | **4.70x faster** | AVL Tree (Python) vs. BTree (Rust) vs. Unordered Hash Map (Native). |
-| **Priority Queue**| 0.0238s | 0.0371s | 0.0054s | *0.64x faster* | Custom binary heap vs. C-optimized `heapq` module. |
+When comparing PySTL to Python's built-ins, it is crucial to recognize two key system characteristics:
+1. **Sorted Tree-based vs. Hash-based Complexity:** Python's native `dict` and `set` are unordered hash tables with average **$O(1)$** lookup/insert complexity. PySTL's `stl_map` and `set` are modeled after C++'s `std::map`/`std::set` (using `BTreeMap`/`BTreeSet` in Rust and an `AVLTree` in Python) which maintain keys in **sorted order**, yielding **$O(\log N)$** lookup/insert complexity. Direct speed comparison between them is algorithmically an "apples-to-oranges" comparison.
+2. **FFI Boundary Crossing Overhead:** For high-frequency, low-work operations (like pushing single elements), the cost of crossing the Python-Rust FFI boundary is the dominant overhead factor.
 
-* **Sorted Trees vs. Hash Tables**: Python's native `set` and `dict` are highly optimized $O(1)$ hash tables written in C. PythonSTL sets/maps replicate C++'s `std::set`/`std::map` using sorted trees (`BTreeSet`/`BTreeMap`), which run in $O(\log N)$ and sort keys.
-* **FFI overhead**: Storing arbitrary Python objects in Rust requires acquiring the GIL and calling back into the Python VM for comparisons, creating high FFI boundaries.
+To isolate the actual performance gains of using the Rust backend, PySTL benchmarks compare the **Rust-backed STL containers** against their **Pure Python STL container counterparts** (equivalent data structures and APIs), alongside Python's built-ins as a baseline.
+
+### 1. Containers Performance (10,000 Elements / Operations)
+
+| Container Class & Operation | Pure Python STL | Python + Rust STL | Native Built-in | Rust Speedup (vs Pure Py STL) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Stack (1,000,000 push/pops)** | 0.4768s | 0.3227s | 0.0530s (Native list.pop) | **1.48x faster** |
+| **Vector (10,000 push_backs)** | 0.2296s | 0.1374s | 0.0444s (Native list.append) | **1.67x faster** |
+| **Vector (10,000 random at())** | 0.4844s | 0.3264s | 0.0586s (Native list[i]) | **1.48x faster** |
+| **Map (10,000 insert - integers)** | 0.0873s | 0.0116s | 0.0019s (Native dict[key]) | **7.53x faster** |
+| **Map (10,000 find - integers)**   | 0.0077s | 0.0046s | 0.0018s (Native key in dict) | **1.68x faster** |
+
+*Note: For primitive key types (like integers, floats, and strings), the Rust BTreeMap/BTreeSet uses native type-extraction fast-paths in `PyObjectOrd::cmp` to avoid calling back into CPython's rich comparison system.*
 
 ### 2. Algorithms Suite
 
@@ -421,6 +427,18 @@ pytest && mypy pythonstl/ && flake8 pythonstl/
   - **No Sorted Set/Map:** Python's built-in `set` and `dict` are hash-based and unordered. To maintain a sorted collection, you'd have to sort repeatedly $\mathcal{O}(n \log n)$. `PythonSTL`'s Rust backend provides a true $\mathcal{O}(\log n)$ sorted `BTreeSet` and `BTreeMap` (and the pure-Python fallback uses a balanced AVL Tree).
   - **No Customizable Priority Queue:** Python’s `heapq` is strictly a min-heap, and custom comparators are difficult to write. `PythonSTL` provides max/min heaps and custom sorting keys out-of-the-box.
   - **Engineering Showcase:** The Rust backend built via Maturin and PyO3 demonstrates a hybrid performance architecture. In real-world projects (like Polars, Pydantic, or cryptography libraries), performance-critical loops are written in compiled languages and bound to Python. This library serves as an educational blueprint for that pattern.
+
+### Myth 3: "Since there is a Rust backend, every operation must be faster than pure Python."
+* **Reality:** Incorrect. As detailed in the performance benchmarks, granular $O(1)$ operations like single element pushes/pops on `stack` or `queue` are dominated by FFI (Foreign Function Interface) boundary crossing overhead. The Rust backend excels in **computation-intensive algorithms** (like sorting, partitioning, or binary searching large arrays) where the FFI boundary is crossed only once or twice, and when type-extraction fast-paths can stay natively in Rust.
+
+### Myth 4: "PySTL's Rust backend makes the containers thread-safe."
+* **Reality:** Absolutely not. Even with the Rust backend, PySTL containers are **not thread-safe**. Since they store Python objects (`PyObject`), Rust has to interact with the Python GIL (Global Interpreter Lock). Simultaneous mutations from multiple Python threads on the same container will lead to data races or undefined behavior unless synchronized using Python's `threading.Lock`.
+
+### Myth 5: "PySTL's `stl_set` and `stl_map` are drop-in performance replacements for Python `set` and `dict`."
+* **Reality:** No. They serve fundamentally different algorithmic needs. Python `set`/`dict` are hash tables ($O(1)$ average complexity, unordered). PySTL's set/map are tree-based sorted containers ($O(\log N)$ complexity, ordered). They should only be used when keys must be kept sorted or when range query capabilities (like `lower_bound`/`upper_bound`) are needed.
+
+### Myth 6: "Using a Rust backend avoids all Python memory and reference counting issues."
+* **Reality:** False. Because PySTL containers store arbitrary Python objects, they hold `PyObject` references. They participate in CPython's reference counting and garbage collection. If you create circular references, CPython's GC still has to clean them up.
 
 ## License
 
