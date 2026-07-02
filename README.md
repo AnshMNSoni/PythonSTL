@@ -7,7 +7,7 @@
 <br>
 
 <div align="center">
-    <img width="500" height="500" alt="pythonstl_logo" src="https://github.com/user-attachments/assets/7ef83b5f-d005-48e0-a186-05dd7e2221c2" />
+    <img width="500" height="500" alt="pythonstl-removebg-preview" src="https://github.com/user-attachments/assets/83bc0da7-50d5-489b-a19d-c8e04fe73cca" />
 </div><br>
 
 A Python package that replicates C++ STL-style data structures using the **Facade Design Pattern**. PythonSTL provides clean, familiar interfaces for developers coming from C++ while maintaining Pythonic best practices.
