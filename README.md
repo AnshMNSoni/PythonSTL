@@ -428,6 +428,18 @@ pytest && mypy pythonstl/ && flake8 pythonstl/
   - **No Customizable Priority Queue:** Python’s `heapq` is strictly a min-heap, and custom comparators are difficult to write. `PythonSTL` provides max/min heaps and custom sorting keys out-of-the-box.
   - **Engineering Showcase:** The Rust backend built via Maturin and PyO3 demonstrates a hybrid performance architecture. In real-world projects (like Polars, Pydantic, or cryptography libraries), performance-critical loops are written in compiled languages and bound to Python. This library serves as an educational blueprint for that pattern.
 
+### Myth 3: "Since there is a Rust backend, every operation must be faster than pure Python."
+* **Reality:** Incorrect. As detailed in the performance benchmarks, granular $O(1)$ operations like single element pushes/pops on `stack` or `queue` are dominated by FFI (Foreign Function Interface) boundary crossing overhead. The Rust backend excels in **computation-intensive algorithms** (like sorting, partitioning, or binary searching large arrays) where the FFI boundary is crossed only once or twice, and when type-extraction fast-paths can stay natively in Rust.
+
+### Myth 4: "PySTL's Rust backend makes the containers thread-safe."
+* **Reality:** Absolutely not. Even with the Rust backend, PySTL containers are **not thread-safe**. Since they store Python objects (`PyObject`), Rust has to interact with the Python GIL (Global Interpreter Lock). Simultaneous mutations from multiple Python threads on the same container will lead to data races or undefined behavior unless synchronized using Python's `threading.Lock`.
+
+### Myth 5: "PySTL's `stl_set` and `stl_map` are drop-in performance replacements for Python `set` and `dict`."
+* **Reality:** No. They serve fundamentally different algorithmic needs. Python `set`/`dict` are hash tables ($O(1)$ average complexity, unordered). PySTL's set/map are tree-based sorted containers ($O(\log N)$ complexity, ordered). They should only be used when keys must be kept sorted or when range query capabilities (like `lower_bound`/`upper_bound`) are needed.
+
+### Myth 6: "Using a Rust backend avoids all Python memory and reference counting issues."
+* **Reality:** False. Because PySTL containers store arbitrary Python objects, they hold `PyObject` references. They participate in CPython's reference counting and garbage collection. If you create circular references, CPython's GC still has to clean them up.
+
 ## License
 
 MIT License - see LICENSE file for details.
