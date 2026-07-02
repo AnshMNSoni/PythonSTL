@@ -51,6 +51,7 @@ class vector:
         else:
             self._impl = _VectorImpl()
             self._is_rust = False
+        self._size = 0
 
     def push_back(self, value: T) -> None:
         """
@@ -63,6 +64,7 @@ class vector:
             O(1) amortized
         """
         self._impl.push_back(value)
+        self._size += 1
 
     def pop_back(self) -> None:
         """
@@ -74,9 +76,10 @@ class vector:
         Time Complexity:
             O(1)
         """
-        if self.empty():
+        if self._size == 0:
             raise EmptyContainerError("vector")
         self._impl.pop_back()
+        self._size -= 1
 
     def at(self, index: int) -> T:
         """
@@ -94,8 +97,8 @@ class vector:
         Time Complexity:
             O(1)
         """
-        if index < 0 or index >= self.size():
-            raise OutOfRangeError(index, self.size())
+        if index < 0 or index >= self._size:
+            raise OutOfRangeError(index, self._size)
         return self._impl.at(index)
 
     def insert(self, position: int, value: T) -> None:
@@ -112,9 +115,10 @@ class vector:
         Time Complexity:
             O(n) where n is the number of elements after position
         """
-        if position < 0 or position > self.size():
-            raise OutOfRangeError(position, self.size())
+        if position < 0 or position > self._size:
+            raise OutOfRangeError(position, self._size)
         self._impl.insert(position, value)
+        self._size += 1
 
     def erase(self, position: int) -> None:
         """
@@ -129,9 +133,10 @@ class vector:
         Time Complexity:
             O(n) where n is the number of elements after position
         """
-        if position < 0 or position >= self.size():
-            raise OutOfRangeError(position, self.size())
+        if position < 0 or position >= self._size:
+            raise OutOfRangeError(position, self._size)
         self._impl.erase(position)
+        self._size -= 1
 
     def clear(self) -> None:
         """
@@ -141,6 +146,7 @@ class vector:
             O(n) where n is the number of elements
         """
         self._impl.clear()
+        self._size = 0
 
     def reserve(self, new_capacity: int) -> None:
         """
@@ -230,7 +236,7 @@ class vector:
         Time Complexity:
             O(1)
         """
-        return self._impl.size()
+        return self._size
 
     def capacity(self) -> int:
         """
@@ -254,7 +260,7 @@ class vector:
         Time Complexity:
             O(1)
         """
-        return self._impl.empty()
+        return self._size == 0
 
     def copy(self) -> 'vector':
         """
@@ -272,6 +278,7 @@ class vector:
         else:
             new_vector._impl._data = self._impl._data.copy()
             new_vector._impl._capacity = self._impl._capacity
+        new_vector._size = self._size
         return new_vector
 
     # Python magic methods
@@ -399,6 +406,7 @@ class vector:
         else:
             new_vector._impl._data = deepcopy(self._impl._data, memo)
             new_vector._impl._capacity = self._impl._capacity
+        new_vector._size = self._size
         return new_vector
 
 
