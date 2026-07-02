@@ -418,7 +418,7 @@ pytest && mypy pythonstl/ && flake8 pythonstl/
 
 ### Myth 2: "Python's native structures are better and faster, so the Rust backend is unnecessary over-engineering."
 * **Reality:** While Python's built-ins are great, Python actually lacks native equivalents for some core STL behaviors:
-  - **No Sorted Set/Map:** Python's built-in `set` and `dict` are hash-based and unordered. To maintain a sorted collection, you'd have to sort repeatedly ($\mathcal{O}(n \log n)$). `PythonSTL`'s Rust backend provides a true $\mathcal{O}(\log n)$ sorted `BTreeSet` and `BTreeMap` (and the pure-Python fallback uses a balanced AVL Tree).
+  - **No Sorted Set/Map:** Python's built-in `set` and `dict` are hash-based and unordered. To maintain a sorted collection, you'd have to sort repeatedly $\mathcal{O}(n \log n)$. `PythonSTL`'s Rust backend provides a true $\mathcal{O}(\log n)$ sorted `BTreeSet` and `BTreeMap` (and the pure-Python fallback uses a balanced AVL Tree).
   - **No Customizable Priority Queue:** Python’s `heapq` is strictly a min-heap, and custom comparators are difficult to write. `PythonSTL` provides max/min heaps and custom sorting keys out-of-the-box.
   - **Engineering Showcase:** The Rust backend built via Maturin and PyO3 demonstrates a hybrid performance architecture. In real-world projects (like Polars, Pydantic, or cryptography libraries), performance-critical loops are written in compiled languages and bound to Python. This library serves as an educational blueprint for that pattern.
 
