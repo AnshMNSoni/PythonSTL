@@ -8,7 +8,7 @@ This package provides clean, STL-compliant interfaces for common
 data structures while hiding implementation details from users.
 """
 
-__version__ = "1.1.8"
+__version__ = "1.1.9"
 __author__ = "PySTL Contributors"
 
 from pythonstl.facade.stack import stack
