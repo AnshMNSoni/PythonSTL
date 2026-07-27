@@ -1,6 +1,6 @@
 import pytest
 from pythonstl import next_permutation, prev_permutation, nth_element, partition
-from pythonstl.facade.algorithms import RUST_AVAILABLE
+from pythonstl.containers.algorithms import RUST_AVAILABLE
 
 # Run tests on both implementations (Rust and pure-Python)
 PARAMS = [False]
