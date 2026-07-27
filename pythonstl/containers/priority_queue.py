@@ -6,8 +6,8 @@ This module provides the public-facing priority_queue class that users interact 
 
 from typing import TypeVar
 from copy import deepcopy
-from pythonstl.core.exceptions import EmptyContainerError
-from pythonstl.implementations.heaps._priority_queue_impl import _PriorityQueueImpl
+from pythonstl.utility.exceptions import EmptyContainerError
+from pythonstl.engines.heaps._priority_queue_impl import _PriorityQueueImpl
 
 try:
     from pythonstl._rust import RustPriorityQueue

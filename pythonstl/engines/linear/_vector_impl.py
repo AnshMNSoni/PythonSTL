@@ -6,8 +6,8 @@ following C++ STL semantics. Users should not access this directly.
 """
 
 from typing import TypeVar, List
-from pythonstl.core.exceptions import EmptyContainerError, OutOfRangeError
-from pythonstl.core.iterator import VectorIterator, VectorReverseIterator
+from pythonstl.utility.exceptions import EmptyContainerError, OutOfRangeError
+from pythonstl.utility.iterator import VectorIterator, VectorReverseIterator
 
 T = TypeVar('T')
 

@@ -10,12 +10,12 @@
     <img width="500" height="500" alt="pythonstl-removebg-preview" src="https://github.com/user-attachments/assets/83bc0da7-50d5-489b-a19d-c8e04fe73cca" />
 </div><br>
 
-A Python package that replicates C++ STL-style data structures using the **Facade Design Pattern**. PythonSTL provides clean, familiar interfaces for developers coming from C++ while maintaining Pythonic best practices.
+A Python package that replicates C++ STL-style data structures using a modular **Containers**, **Engines**, and **Utility** architecture. PythonSTL provides clean, familiar interfaces for developers coming from C++ while maintaining Pythonic best practices.
 
 ## Features
 
 - **C++ STL Compliance**: Exact method names and semantics matching C++ STL
-- **Facade Design Pattern**: Clean separation between interface and implementation
+- **Modular Layered Architecture**: Clean separation between containers, execution engines, and utilities
 - **Iterator Support**: STL-style iterators (begin, end, rbegin, rend) and Python iteration
 - **Python Integration**: Magic methods (__len__, __bool__, __contains__, __repr__, __eq__)
 - **Type Safety**: Full type hints throughout the codebase
@@ -259,22 +259,22 @@ Container adapter providing priority-based access.
 
 ## 🏗️ Architecture
 
-PythonSTL follows the **Facade Design Pattern** with three layers:
+PythonSTL is structured into three distinct, specialized layers (**Containers**, **Engines**, **Utility**):
 
-1. **Core Layer** (`pythonstl/core/`)
-   - Base classes and type definitions
-   - Custom exceptions
-   - Iterator classes
+1. **Containers Layer** (`pythonstl/containers/`)
+   - Public-facing STL-compliant container classes and algorithms
+   - Dispatches operations to native Rust or Python engines
+   - Clean, C++ STL-compliant API
 
-2. **Implementation Layer** (`pythonstl/implementations/`)
-   - Private implementation classes (prefixed with `_`)
-   - Efficient use of Python built-ins
+2. **Engines Layer** (`pythonstl/engines/`)
+   - Internal execution and storage engine implementations (prefixed with `_`)
+   - Linear, associative, and heap structure engines
    - Not intended for direct user access
 
-3. **Facade Layer** (`pythonstl/facade/`)
-   - Public-facing classes
-   - Clean, STL-compliant API
-   - Delegates to implementation layer
+3. **Utility Layer** (`pythonstl/utility/`)
+   - Common utilities, base classes, and type definitions
+   - Custom exception types
+   - Iterator implementations and AVL tree building blocks
 
 This architecture ensures:
 - **Encapsulation**: Internal implementation is hidden
@@ -299,11 +299,11 @@ def thread_safe_push(value):
 
 ## Design Decisions
 
-### Why Facade Pattern?
+### Why Containers, Engines & Utility?
 
-- **Clean API**: Users interact with simple, well-defined interfaces
-- **Flexibility**: Internal implementation can change without affecting users
-- **Type Safety**: Facade layer enforces type contracts
+- **Clean API**: Users interact with simple, well-defined container interfaces
+- **Flexibility**: Internal storage and execution engines can change without affecting users
+- **Type Safety**: Containers layer enforces type contracts
 - **Error Handling**: Consistent error messages across all containers
 
 ### Why STL Naming?
@@ -460,4 +460,4 @@ Contributions are welcome! Please:
 - Issues: [GitHub Issues](https://github.com/AnshMNSoni/PythonSTL/issues)
 - Linkedin: [@anshmnsoni](https://linkedin.com/in/anshmnsoni)
 
-**PythonSTL v1.1.9** - Bringing C++ STL elegance to Python
+**PythonSTL v1.1.10** - Bringing C++ STL elegance to Python

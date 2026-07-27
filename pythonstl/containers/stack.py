@@ -6,8 +6,8 @@ This module provides the public-facing stack class that users interact with.
 
 from typing import TypeVar
 from copy import deepcopy
-from pythonstl.core.exceptions import EmptyContainerError
-from pythonstl.implementations.linear._stack_impl import _StackImpl
+from pythonstl.utility.exceptions import EmptyContainerError
+from pythonstl.engines.linear._stack_impl import _StackImpl
 
 try:
     from pythonstl._rust import RustStack

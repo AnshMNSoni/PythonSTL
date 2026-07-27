@@ -8,7 +8,7 @@ Install required tools:
 
 ```bash
 pip install --upgrade pip
-pip install build twine
+pip install maturin twine build
 ```
 
 ## Step 1: Clean Previous Builds
@@ -17,23 +17,30 @@ Remove any existing build artifacts:
 
 ```bash
 # Windows PowerShell
-Remove-Item -Recurse -Force dist, build, *.egg-info -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force dist, target, build, *.egg-info -ErrorAction SilentlyContinue
 
 # Linux/Mac
-rm -rf dist build *.egg-info
+rm -rf dist target build *.egg-info
 ```
 
 ## Step 2: Build the Distribution
 
-Build both source distribution and wheel:
+For hybrid Python/Rust packages using Maturin:
+
+```bash
+# Build wheel and sdist with maturin
+maturin build --release
+```
+
+Or using `python -m build` (which invokes maturin as the build backend defined in `pyproject.toml`):
 
 ```bash
 python -m build
 ```
 
-This creates:
-- `dist/pythonstl-0.1.0.tar.gz` (source distribution)
-- `dist/pythonstl-0.1.0-py3-none-any.whl` (wheel)
+This creates distribution artifacts in `target/wheels/` or `dist/`:
+- `dist/pythonstl-1.1.9.tar.gz` (source distribution)
+- `dist/pythonstl-1.1.9-*.whl` (compiled wheel)
 
 ## Step 3: Validate the Build
 

@@ -1,6 +1,6 @@
 [package]
 name = "pythonstl"
-version = "0.1.4"
+version = "1.1.10"
 edition = "2021"
 description = "Rust backend extension for pythonstl data structures"
 

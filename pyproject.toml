@@ -8,7 +8,7 @@ module-name = "pythonstl._rust"
 
 [project]
 name = "pythonstl"
-version = "1.1.9"
+version = "1.1.10"
 description = "C++ STL-style containers implemented in Python using the Facade Design Pattern"
 readme = "README.md"
 authors = [
@@ -38,7 +38,7 @@ Issues = "https://github.com/AnshMNSoni/STL/issues"
 Documentation = "https://github.com/AnshMNSoni/STL#readme"
 
 [tool.setuptools]
-packages = ["pythonstl", "pythonstl.core", "pythonstl.implementations", "pythonstl.implementations.linear", "pythonstl.implementations.associative", "pythonstl.implementations.heaps", "pythonstl.facade"]
+packages = ["pythonstl", "pythonstl.utility", "pythonstl.engines", "pythonstl.engines.linear", "pythonstl.engines.associative", "pythonstl.engines.heaps", "pythonstl.containers"]
 
 [tool.setuptools.package-data]
 pythonstl = ["py.typed"]

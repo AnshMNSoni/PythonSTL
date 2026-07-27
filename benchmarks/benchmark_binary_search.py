@@ -9,7 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from pythonstl import lower_bound
-from pythonstl.facade.algorithms import RUST_AVAILABLE
+from pythonstl.containers.algorithms import RUST_AVAILABLE
 
 def run_py_binary_search(arr, targets):
     sum_indices = 0

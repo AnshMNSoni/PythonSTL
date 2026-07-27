@@ -6,9 +6,9 @@ following C++ STL semantics. Users should not access this directly.
 """
 
 from typing import TypeVar, Dict
-from pythonstl.core.exceptions import KeyNotFoundError
-from pythonstl.core.iterator import MapIterator
-from pythonstl.core.avl_tree import AVLTree
+from pythonstl.utility.exceptions import KeyNotFoundError
+from pythonstl.utility.iterator import MapIterator
+from pythonstl.utility.avl_tree import AVLTree
 
 K = TypeVar('K')
 V = TypeVar('V')

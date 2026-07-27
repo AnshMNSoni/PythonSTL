@@ -13,12 +13,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from pythonstl import stack, queue, vector, stl_set, stl_map, priority_queue
-from pythonstl.facade.stack import RUST_AVAILABLE as STACK_RUST_AVAILABLE
-from pythonstl.facade.queue import RUST_AVAILABLE as QUEUE_RUST_AVAILABLE
-from pythonstl.facade.vector import RUST_AVAILABLE as VECTOR_RUST_AVAILABLE
-from pythonstl.facade.set import RUST_AVAILABLE as SET_RUST_AVAILABLE
-from pythonstl.facade.map import RUST_AVAILABLE as MAP_RUST_AVAILABLE
-from pythonstl.facade.priority_queue import RUST_AVAILABLE as PQ_RUST_AVAILABLE
+from pythonstl.containers.stack import RUST_AVAILABLE as STACK_RUST_AVAILABLE
+from pythonstl.containers.queue import RUST_AVAILABLE as QUEUE_RUST_AVAILABLE
+from pythonstl.containers.vector import RUST_AVAILABLE as VECTOR_RUST_AVAILABLE
+from pythonstl.containers.set import RUST_AVAILABLE as SET_RUST_AVAILABLE
+from pythonstl.containers.map import RUST_AVAILABLE as MAP_RUST_AVAILABLE
+from pythonstl.containers.priority_queue import RUST_AVAILABLE as PQ_RUST_AVAILABLE
 
 
 def run_benchmark(name, py_func, rust_func, has_rust, native_func):

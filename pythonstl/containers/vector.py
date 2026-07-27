@@ -6,9 +6,9 @@ This module provides the public-facing vector class that users interact with.
 
 from typing import TypeVar, Iterator as TypingIterator
 from copy import deepcopy
-from pythonstl.core.exceptions import EmptyContainerError, OutOfRangeError
-from pythonstl.implementations.linear._vector_impl import _VectorImpl
-from pythonstl.core.iterator import VectorIterator, VectorReverseIterator
+from pythonstl.utility.exceptions import EmptyContainerError, OutOfRangeError
+from pythonstl.engines.linear._vector_impl import _VectorImpl
+from pythonstl.utility.iterator import VectorIterator, VectorReverseIterator
 
 try:
     from pythonstl._rust import RustVector

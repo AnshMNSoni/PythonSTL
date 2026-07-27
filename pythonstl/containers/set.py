@@ -6,8 +6,8 @@ This module provides the public-facing set class that users interact with.
 
 from typing import TypeVar, Iterator as TypingIterator
 from copy import deepcopy
-from pythonstl.implementations.associative._set_impl import _SetImpl
-from pythonstl.core.iterator import SetIterator
+from pythonstl.engines.associative._set_impl import _SetImpl
+from pythonstl.utility.iterator import SetIterator
 
 try:
     from pythonstl._rust import RustSet
