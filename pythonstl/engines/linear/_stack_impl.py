@@ -6,7 +6,7 @@ following C++ STL semantics. Users should not access this directly.
 """
 
 from typing import TypeVar, List
-from pythonstl.core.exceptions import EmptyContainerError
+from pythonstl.utility.exceptions import EmptyContainerError
 
 T = TypeVar('T')
 

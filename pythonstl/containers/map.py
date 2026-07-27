@@ -6,9 +6,9 @@ This module provides the public-facing map class that users interact with.
 
 from typing import TypeVar, Iterator as TypingIterator, Tuple
 from copy import deepcopy
-from pythonstl.core.exceptions import KeyNotFoundError
-from pythonstl.implementations.associative._map_impl import _MapImpl
-from pythonstl.core.iterator import MapIterator
+from pythonstl.utility.exceptions import KeyNotFoundError
+from pythonstl.engines.associative._map_impl import _MapImpl
+from pythonstl.utility.iterator import MapIterator
 
 try:
     from pythonstl._rust import RustMap

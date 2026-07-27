@@ -11,13 +11,13 @@ data structures while hiding implementation details from users.
 __version__ = "1.1.9"
 __author__ = "PySTL Contributors"
 
-from pythonstl.facade.stack import stack
-from pythonstl.facade.queue import queue
-from pythonstl.facade.vector import vector
-from pythonstl.facade.set import stl_set
-from pythonstl.facade.map import stl_map
-from pythonstl.facade.priority_queue import priority_queue
-from pythonstl.facade.algorithms import (
+from pythonstl.containers.stack import stack
+from pythonstl.containers.queue import queue
+from pythonstl.containers.vector import vector
+from pythonstl.containers.set import stl_set
+from pythonstl.containers.map import stl_map
+from pythonstl.containers.priority_queue import priority_queue
+from pythonstl.containers.algorithms import (
     next_permutation,
     prev_permutation,
     nth_element,
@@ -29,7 +29,7 @@ from pythonstl.facade.algorithms import (
 )
 
 # Also export exceptions for user error handling
-from pythonstl.core.exceptions import (
+from pythonstl.utility.exceptions import (
     PySTLException,
     EmptyContainerError,
     OutOfRangeError,

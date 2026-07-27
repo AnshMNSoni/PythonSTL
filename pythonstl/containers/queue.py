@@ -6,8 +6,8 @@ This module provides the public-facing queue class that users interact with.
 
 from typing import TypeVar
 from copy import deepcopy
-from pythonstl.core.exceptions import EmptyContainerError
-from pythonstl.implementations.linear._queue_impl import _QueueImpl
+from pythonstl.utility.exceptions import EmptyContainerError
+from pythonstl.engines.linear._queue_impl import _QueueImpl
 
 try:
     from pythonstl._rust import RustQueue

@@ -6,8 +6,8 @@ following C++ STL semantics. Users should not access this directly.
 """
 
 from typing import TypeVar, List
-from pythonstl.core.iterator import SetIterator
-from pythonstl.core.avl_tree import AVLTree
+from pythonstl.utility.iterator import SetIterator
+from pythonstl.utility.avl_tree import AVLTree
 
 T = TypeVar('T')
 

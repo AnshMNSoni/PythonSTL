@@ -1,4 +1,4 @@
-"""Facade layer for pystl data structures."""
+"""Containers layer for pystl data structures."""
 
 from .stack import stack
 from .queue import queue
