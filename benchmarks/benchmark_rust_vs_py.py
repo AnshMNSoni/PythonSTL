@@ -7,7 +7,7 @@ from pathlib import Path
 # Add project root to path to run directly from development folder
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from pythonstl.facade.stack import stack, RUST_AVAILABLE
+from pythonstl.containers.stack import stack, RUST_AVAILABLE
 
 # Try importing the bubble_sort function from the compiled Rust library
 try:

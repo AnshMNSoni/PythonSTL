@@ -9,7 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from pythonstl import next_permutation, nth_element, partition, stl_set
-from pythonstl.facade.algorithms import RUST_AVAILABLE
+from pythonstl.containers.algorithms import RUST_AVAILABLE
 
 def run_py_permutation():
     arr = [1, 2, 3, 4, 5, 6, 7, 8, 9]
